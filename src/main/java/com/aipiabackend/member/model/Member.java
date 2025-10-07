@@ -43,4 +43,8 @@ public class Member {
     public boolean isWithdrawn() {
         return withdrawnAt != null;
     }
+
+    public static Member of(String name, String email, String password, String phone) {
+        return new Member(null, name, email, password, phone, LocalDateTime.now(), null);
+    }
 }
