@@ -72,4 +72,31 @@ public class MemberRestControllerTest {
 
         assertThat(response).hasStatus(HttpStatus.BAD_REQUEST);
     }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "123456789012345678901234567890123456789012@test.com", // 51자 - 실패
+        "", // 빈 문자열 - 실패
+        "invalid-email", // 이메일 형식 아님 - 실패
+        "test@", // 불완전한 이메일 - 실패
+        "@test.com", // @앞에 내용 없음 - 실패
+    })
+    void 회원가입시_이메일은_최대_50자리_이메일_형식이어야_한다(String invalidEmail) {
+        String requestBody = String.format("""
+            {
+                "name": "홍길동",
+                "email": "%s",
+                "password": "gdkim-secret",
+                "phone": "010-1111-2222"
+            }
+            """, invalidEmail);
+
+        var response = mockMvcTester
+            .post()
+            .uri("/api/members")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(requestBody);
+
+        assertThat(response).hasStatus(HttpStatus.BAD_REQUEST);
+    }
 }
