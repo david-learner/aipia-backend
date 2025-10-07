@@ -1,6 +1,7 @@
 package com.aipiabackend.member.acceptance;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.matchesRegex;
 
 import io.restassured.RestAssured;
@@ -12,10 +13,12 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class MemberAcceptanceTest {
 
     @LocalServerPort
@@ -158,5 +161,83 @@ public class MemberAcceptanceTest {
             .post("/api/members")
             .then()
             .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    void 이미_존재하는_휴대폰_번호로_회원가입시_409_Conflict_응답한다() {
+        String firstMemberRequestBody = """
+            {
+                "name": "김길동",
+                "email": "gdkim@gmail.com",
+                "password": "gdkimSecret123",
+                "phone": "010-1111-2222"
+            }
+            """;
+
+        given()
+            .contentType(ContentType.JSON)
+            .body(firstMemberRequestBody)
+            .when()
+            .post("/api/members")
+            .then()
+            .statusCode(HttpStatus.CREATED.value());
+
+        String duplicatePhoneRequestBody = """
+            {
+                "name": "홍길동",
+                "email": "gdhong@gmail.com", 
+                "password": "gdhongSecret123",
+                "phone": "010-1111-2222"
+            }
+            """;
+
+        given()
+            .contentType(ContentType.JSON)
+            .body(duplicatePhoneRequestBody)
+            .when()
+            .post("/api/members")
+            .then()
+            .statusCode(HttpStatus.CONFLICT.value())
+            .body("code", equalTo("AIPIA-0001"))
+            .body("message", equalTo("이미 존재하는 휴대폰 번호입니다."));
+    }
+
+    @Test
+    void 이미_존재하는_이메일로_회원가입시_409_Conflict_응답한다() {
+        String firstMemberRequestBody = """
+            {
+                "name": "김길동",
+                "email": "gdkim@gmail.com",
+                "password": "gdkimSecret123",
+                "phone": "010-1111-2222"
+            }
+            """;
+
+        given()
+            .contentType(ContentType.JSON)
+            .body(firstMemberRequestBody)
+            .when()
+            .post("/api/members")
+            .then()
+            .statusCode(HttpStatus.CREATED.value());
+
+        String duplicateEmailRequestBody = """
+            {
+                "name": "홍길동",
+                "email": "gdkim@gmail.com",
+                "password": "gdhongSecret123", 
+                "phone": "010-3333-4444"
+            }
+            """;
+
+        given()
+            .contentType(ContentType.JSON)
+            .body(duplicateEmailRequestBody)
+            .when()
+            .post("/api/members")
+            .then()
+            .statusCode(HttpStatus.CONFLICT.value())
+            .body("code", equalTo("AIPIA-0002"))
+            .body("message", equalTo("이미 존재하는 이메일입니다."));
     }
 }
