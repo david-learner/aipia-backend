@@ -1,4 +1,4 @@
-package com.aipiabackend.service;
+package com.aipiabackend.member.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

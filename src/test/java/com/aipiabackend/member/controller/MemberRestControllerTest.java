@@ -1,8 +1,7 @@
-package com.aipiabackend.member;
+package com.aipiabackend.member.controller;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
-import com.aipiabackend.member.controller.MemberRestController;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
