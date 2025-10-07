@@ -126,4 +126,33 @@ public class MemberRestControllerTest {
 
         assertThat(response).hasStatus(HttpStatus.BAD_REQUEST);
     }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "", // 빈 문자열 - 실패
+        "010-12345-6789", // 잘못된 형식 - 실패
+        "010-123-4567", // 잘못된 형식 - 실패
+        "011-1234-5678", // 010으로 시작하지 않음 - 실패
+        "010-abcd-efgh", // 숫자가 아님 - 실패
+        "010 1234 5678", // 공백 포함 - 실패
+        "010.1234.5678", // 점(.) 포함 - 실패
+    })
+    void 회원가입시_휴대폰_번호는_010_xxxx_xxxx_형식이어야_한다(String invalidPhone) {
+        String requestBody = String.format("""
+            {
+                "name": "홍길동",
+                "email": "gdkim@gmail.com",
+                "password": "gdkim-secret",
+                "phone": "%s"
+            }
+            """, invalidPhone);
+
+        var response = mockMvcTester
+            .post()
+            .uri("/api/members")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(requestBody);
+
+        assertThat(response).hasStatus(HttpStatus.BAD_REQUEST);
+    }
 }

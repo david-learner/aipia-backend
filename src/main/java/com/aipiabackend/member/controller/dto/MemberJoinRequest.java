@@ -21,6 +21,8 @@ public record MemberJoinRequest(
     @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "비밀번호는 영어 대/소문자, 숫자로만 구성되어야 합니다")
     String password,
     
+    @NotBlank(message = "휴대폰 번호는 필수입니다")
+    @Pattern(regexp = "^010-\\d{4}-\\d{4}$", message = "휴대폰 번호는 010-xxxx-xxxx 형식이어야 합니다")
     String phone
 ) {
 }
