@@ -146,13 +146,6 @@ Order ↔ Payment (1:1)
 
 ## API 명세서
 
-로그인 API
-회원가입 API
-회원 단건 조회 API
-주문 생성 API
-주문 결제 API
-주문 단건 조회 API
-
 ### 로그인 API
 
 `POST /api/login`
@@ -187,22 +180,18 @@ Order ↔ Payment (1:1)
 
 **응답**:
 - 회원가입 성공: 201 Created
-- 이메일 중복: 409 Conflict
-  ```json
-    {
-        "code": "JOIN-001",
-        "name": "EMAIL_DUPLICATED",
-        "subject": "이미 사용중인 이메일입니다.",
-        "detail": ""
-    }
-  ```
 - 휴대폰 번호 중복: 409 Conflict
   ```json
     {
-        "code": "JOIN-002",
-        "name": "PHONE_DUPLICATED",
-        "subject": "이미 사용중인 휴대폰 번호입니다.",
-        "detail": ""
+        "code": "AIPIA-0001",
+        "message": "이미 존재하는 휴대폰 번호입니다."
+    }
+  ```
+- 이메일 중복: 409 Conflict
+  ```json
+    {
+        "code": "AIPIA-0002",
+        "message": "이미 존재하는 이메일입니다."
     }
   ```
 
@@ -291,3 +280,9 @@ OrderLine 객체
   - [x] API 명세서 작성
   - [x] 테스트 시나리오 작성
 - [ ] 구현
+  - [ ] 회원가입 API
+  - [ ] 로그인 API
+  - [ ] 회원 단건 조회 API
+  - [ ] 주문 생성 API
+  - [ ] 주문 결제 API
+  - [ ] 주문 단건 조회 API
