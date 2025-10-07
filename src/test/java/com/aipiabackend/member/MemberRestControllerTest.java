@@ -4,6 +4,8 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 import com.aipiabackend.member.controller.MemberRestController;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpHeaders;
@@ -40,5 +42,34 @@ public class MemberRestControllerTest {
             String location = httpHeaders.getFirst(HttpHeaders.LOCATION);
             return location != null && location.matches("^/api/members/\\d+$");
         });
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "일이삼사오육칠팔구십일", // 11자 - 실패
+        "", // 빈 문자열 - 실패
+        "abc", // 영문 - 실패
+        "123", // 숫자 - 실패
+        "홍길동123", // 한글+숫자 - 실패
+        "홍 길 동", // 공백 포함 - 실패
+        "홍길동!@#", // 특수문자 포함 - 실패
+    })
+    void 회원가입시_이름은_최대_10자리_한글_문자열이어야_한다(String invalidName) {
+        String requestBody = String.format("""
+            {
+                "name": "%s",
+                "email": "gdkim@gmail.com",
+                "password": "gdkim-secret",
+                "phone": "010-1111-2222"
+            }
+            """, invalidName);
+
+        var response = mockMvcTester
+            .post()
+            .uri("/api/members")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(requestBody);
+
+        assertThat(response).hasStatus(HttpStatus.BAD_REQUEST);
     }
 }
