@@ -84,12 +84,39 @@ public class MemberRestControllerTest {
     void 회원가입시_이메일은_최대_50자리_이메일_형식이어야_한다(String invalidEmail) {
         String requestBody = String.format("""
             {
-                "name": "홍길동",
+                "name": "김길동",
                 "email": "%s",
                 "password": "gdkim-secret",
                 "phone": "010-1111-2222"
             }
             """, invalidEmail);
+
+        var response = mockMvcTester
+            .post()
+            .uri("/api/members")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(requestBody);
+
+        assertThat(response).hasStatus(HttpStatus.BAD_REQUEST);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "123456789012345678901", // 21자 - 실패
+        "", // 빈 문자열 - 실패
+        "password!@#", // 특수문자 포함 - 실패
+        "비밀번호123", // 한글 포함 - 실패
+        "password 123", // 공백 포함 - 실패
+    })
+    void 회원가입시_비밀번호는_최대_20자리_영문과_숫자만_허용한다(String invalidPassword) {
+        String requestBody = String.format("""
+            {
+                "name": "김길동",
+                "email": "gdkim@gmail.com",
+                "password": "%s",
+                "phone": "010-1111-2222"
+            }
+            """, invalidPassword);
 
         var response = mockMvcTester
             .post()

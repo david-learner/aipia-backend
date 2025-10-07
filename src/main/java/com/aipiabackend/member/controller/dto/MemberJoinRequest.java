@@ -16,6 +16,9 @@ public record MemberJoinRequest(
     @Email(message = "올바른 이메일 형식이어야 합니다")
     String email,
 
+    @NotBlank(message = "비밀번호는 필수입니다")
+    @Size(max = 20, message = "비밀번호는 20자 이하여야 합니다")
+    @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "비밀번호는 영어 대/소문자, 숫자로만 구성되어야 합니다")
     String password,
     
     String phone
