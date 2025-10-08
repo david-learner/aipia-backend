@@ -1,12 +1,14 @@
 package com.aipiabackend.support.service;
 
+import static com.aipiabackend.support.model.ErrorCodeMessage.UNKNOWN;
+
 import com.aipiabackend.member.model.exception.DuplicatedEmailExistenceException;
 import com.aipiabackend.member.model.exception.DuplicatedPhoneExistenceException;
 import com.aipiabackend.support.dto.ErrorResponse;
-import com.aipiabackend.support.model.ErrorCodeMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -30,5 +32,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<Void> handleBadCredentials(BadCredentialsException e) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException exception) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(ErrorResponse.ofDetail(UNKNOWN, exception.getBindingResult().getFieldError().getDefaultMessage()));
     }
 }

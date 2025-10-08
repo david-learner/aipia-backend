@@ -25,6 +25,7 @@ public class SpringSecurityConfig {
                 .requestMatchers("/api/members").permitAll()
                 .requestMatchers("/api/auth/login").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
+                .requestMatchers("/error/**").permitAll()
                 .anyRequest().authenticated()
             )
             .headers(headers -> headers.frameOptions().disable());
