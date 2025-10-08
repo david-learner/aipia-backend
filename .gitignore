@@ -35,3 +35,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### 추적하지 않을 문서 ###
+claude_docs/**
