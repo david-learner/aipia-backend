@@ -148,6 +148,26 @@ Order ↔ Payment (1:1)
 
 ## API 명세서
 
+### 공통 응답 모델
+
+**오류**
+```json
+{
+    "code": "AIPIA-0001",
+    "message": "이미 존재하는 휴대폰 번호입니다."
+}
+```
+
+**상세 오류**
+
+```json
+{
+    "code": "AIPIA-0001",
+    "message": "이미 존재하는 휴대폰 번호입니다.",
+    "detail": "phone='010-1111-2222'"
+}
+```
+
 ### 로그인 API
 
 `POST /api/auth/login`
