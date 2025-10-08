@@ -8,6 +8,9 @@ import com.aipiabackend.member.model.exception.DuplicatedEmailExistenceException
 import com.aipiabackend.member.model.exception.DuplicatedPhoneExistenceException;
 import com.aipiabackend.member.repository.MemberRepository;
 import com.aipiabackend.member.service.dto.MemberJoinCommand;
+import com.aipiabackend.support.model.ErrorCodeMessage;
+import com.aipiabackend.support.model.exception.AipiaException;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -40,6 +43,6 @@ public class MemberService {
 
     public Member findByEmail(String email) {
         return memberRepository.findByEmail(email)
-            .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다: " + email));
+            .orElseThrow(() -> new AipiaException(ErrorCodeMessage.MEMBER_NOT_FOUND, "email='%s'".formatted(email)));
     }
 }

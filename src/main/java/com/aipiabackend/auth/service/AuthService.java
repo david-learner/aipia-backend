@@ -2,12 +2,16 @@ package com.aipiabackend.auth.service;
 
 import com.aipiabackend.member.model.Member;
 import com.aipiabackend.member.service.MemberService;
+import com.aipiabackend.support.model.ErrorCodeMessage;
+import com.aipiabackend.support.model.exception.AipiaException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class AuthService {
@@ -21,13 +25,12 @@ public class AuthService {
             Member member = memberService.findByEmail(email);
 
             if (!passwordEncoder.matches(password, member.getPassword())) {
-                throw new BadCredentialsException("Invalid email or password");
+                throw new BadCredentialsException(ErrorCodeMessage.INVALID_LOGIN_INPUT.message());
             }
 
-            // JWT 토큰 생성 (현재는 간단한 구현)
             return generateAccessToken(member);
-        } catch (IllegalArgumentException e) {
-            throw new BadCredentialsException("Invalid email or password");
+        } catch (AipiaException exception) {
+            throw new BadCredentialsException(ErrorCodeMessage.INVALID_LOGIN_INPUT.message());
         }
     }
 

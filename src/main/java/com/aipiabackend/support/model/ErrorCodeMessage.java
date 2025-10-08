@@ -4,7 +4,9 @@ public enum ErrorCodeMessage {
 
     UNKNOWN("AIPIA-0000", "식별되지 않은 오류입니다."),
     DUPLICATED_PHONE_EXISTENCE("AIPIA-0001", "이미 존재하는 휴대폰 번호입니다."),
-    DUPLICATED_EMAIL_EXISTENCE("AIPIA-0002", "이미 존재하는 이메일입니다.");
+    DUPLICATED_EMAIL_EXISTENCE("AIPIA-0002", "이미 존재하는 이메일입니다."),
+    INVALID_LOGIN_INPUT("AIPIA-0003", "로그인 정보가 올바르지 않습니다."),
+    MEMBER_NOT_FOUND("AIPIA-0004", "회원을 찾을 수 없습니다.");
 
     private String code;
     private String message;
