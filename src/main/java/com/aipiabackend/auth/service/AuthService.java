@@ -18,6 +18,7 @@ public class AuthService {
 
     private final MemberService memberService;
     private final PasswordEncoder passwordEncoder;
+    private final TokenService tokenService;
 
     @Transactional(readOnly = true)
     public String login(String email, String password) {
@@ -28,14 +29,10 @@ public class AuthService {
                 throw new BadCredentialsException(ErrorCodeMessage.INVALID_LOGIN_INPUT.message());
             }
 
-            return generateAccessToken(member);
+            return tokenService.generateAccessToken(member);
         } catch (AipiaException exception) {
             throw new BadCredentialsException(ErrorCodeMessage.INVALID_LOGIN_INPUT.message());
         }
     }
 
-    // todo: JWT 라이브러리 추가 후 구현
-    private String generateAccessToken(Member member) {
-        return "jwt-token-for-member-" + member.getId();
-    }
 }

@@ -1,1 +1,7 @@
-spring.application.name=aipia-backend
+spring:
+  application:
+    name: aipia-backend
+
+jwt:
+  secret: mySecretKey123456789012345678901234567890
+  expiration: 3600000
