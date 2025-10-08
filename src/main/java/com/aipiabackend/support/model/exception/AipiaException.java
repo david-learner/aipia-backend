@@ -1,4 +1,4 @@
-package com.aipiabackend.support.exception;
+package com.aipiabackend.support.model.exception;
 
 import com.aipiabackend.support.model.ErrorCodeMessage;
 

@@ -24,7 +24,7 @@ public class Member {
     @Column(nullable = false, unique = true, length = 50)
     private String email;
 
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 60)
     private String password;
 
     @Column(nullable = false, unique = true, length = 13)
@@ -35,6 +35,7 @@ public class Member {
 
     @Column(name = "withdrawn_at")
     private LocalDateTime withdrawnAt;
+
 
     public void withdraw() {
         this.withdrawnAt = LocalDateTime.now();

@@ -6,6 +6,7 @@ import com.aipiabackend.member.service.dto.MemberJoinCommand;
 import com.aipiabackend.member.model.exception.DuplicatedEmailExistenceException;
 import com.aipiabackend.member.model.exception.DuplicatedPhoneExistenceException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public Member join(MemberJoinCommand command) {
@@ -25,7 +27,8 @@ public class MemberService {
             throw new DuplicatedPhoneExistenceException("이미 존재하는 휴대폰 번호입니다: " + command.phone());
         }
 
-        Member member = Member.of(command.name(), command.email(), command.password(), command.phone());
+        String encodedPassword = passwordEncoder.encode(command.password());
+        Member member = Member.of(command.name(), command.email(), encodedPassword, command.phone());
         return memberRepository.save(member);
     }
 }
