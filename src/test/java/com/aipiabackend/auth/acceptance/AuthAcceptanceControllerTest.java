@@ -62,7 +62,7 @@ public class AuthAcceptanceControllerTest {
             .post("/api/auth/login")
             .then()
             .statusCode(HttpStatus.OK.value())
-            .body("access-token", notNullValue());
+            .body("accessToken", notNullValue());
     }
 
     @Test

@@ -183,7 +183,7 @@ Order ↔ Payment (1:1)
 - 로그인 성공: 200 OK
     ```json
     {
-        "access-token": "JWT 형식의 문자열"
+        "accessToken": "JWT 형식의 문자열"
     }
     ```
 
