@@ -2,15 +2,16 @@ package com.aipiabackend.member.service;
 
 import static com.aipiabackend.support.model.ErrorCodeMessage.DUPLICATED_EMAIL_EXISTENCE;
 import static com.aipiabackend.support.model.ErrorCodeMessage.DUPLICATED_PHONE_EXISTENCE;
+import static com.aipiabackend.support.model.ErrorCodeMessage.MEMBER_ACCESS_FORBIDDEN;
 
 import com.aipiabackend.member.model.Member;
 import com.aipiabackend.member.model.exception.DuplicatedEmailExistenceException;
 import com.aipiabackend.member.model.exception.DuplicatedPhoneExistenceException;
+import com.aipiabackend.member.model.exception.MemberAccessForbiddenException;
 import com.aipiabackend.member.repository.MemberRepository;
 import com.aipiabackend.member.service.dto.MemberJoinCommand;
 import com.aipiabackend.support.model.ErrorCodeMessage;
 import com.aipiabackend.support.model.exception.AipiaException;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -44,5 +45,29 @@ public class MemberService {
     public Member findByEmail(String email) {
         return memberRepository.findByEmail(email)
             .orElseThrow(() -> new AipiaException(ErrorCodeMessage.MEMBER_NOT_FOUND, "email='%s'".formatted(email)));
+    }
+
+    public Member findById(Long memberId) {
+        return memberRepository.findById(memberId)
+            .orElseThrow(
+                () -> new AipiaException(ErrorCodeMessage.MEMBER_NOT_FOUND, "memberId='%s'".formatted(memberId)));
+    }
+
+    /**
+     * 회원 정보를 조회한다
+     *
+     * @param requestedMemberId     요청한 회원 ID
+     * @param authenticatedMemberId 인증된 회원 ID (토큰에서 추출)
+     * @throws MemberAccessForbiddenException 요청한 회원 ID와 인증된 회원 ID가 다를 경우 발생
+     */
+    public Member retrieveMemberById(Long requestedMemberId, Long authenticatedMemberId) {
+        if (!requestedMemberId.equals(authenticatedMemberId)) {
+            throw new MemberAccessForbiddenException(
+                MEMBER_ACCESS_FORBIDDEN,
+                "requestedMemberId='%s', authenticatedMemberId='%s'".formatted(requestedMemberId, authenticatedMemberId)
+            );
+        }
+
+        return findById(requestedMemberId);
     }
 }

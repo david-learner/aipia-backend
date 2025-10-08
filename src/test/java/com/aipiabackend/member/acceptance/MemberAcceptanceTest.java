@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.matchesRegex;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import org.apache.http.HttpHeaders;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -48,7 +49,7 @@ public class MemberAcceptanceTest {
             .post("/api/members")
             .then()
             .statusCode(HttpStatus.CREATED.value())
-            .header("Location", matchesRegex("^/api/members/\\d+$"));
+            .header(HttpHeaders.LOCATION, matchesRegex("^/api/members/\\d+$"));
     }
 
     @ParameterizedTest
@@ -225,7 +226,7 @@ public class MemberAcceptanceTest {
             {
                 "name": "홍길동",
                 "email": "gdkim@gmail.com",
-                "password": "gdhongSecret123", 
+                "password": "gdhongSecret123",
                 "phone": "010-3333-4444"
             }
             """;
@@ -239,5 +240,157 @@ public class MemberAcceptanceTest {
             .statusCode(HttpStatus.CONFLICT.value())
             .body("code", equalTo("AIPIA-0002"))
             .body("message", equalTo("이미 존재하는 이메일입니다."));
+    }
+
+    @Test
+    void 회원은_본인의_정보를_조회할_수_있다() {
+        // 회원가입
+        String signupRequestBody = """
+            {
+                "name": "김길동",
+                "email": "gdkim@gmail.com",
+                "password": "gdkimSecret123",
+                "phone": "010-1111-2222"
+            }
+            """;
+
+        String location = given()
+            .contentType(ContentType.JSON)
+            .body(signupRequestBody)
+            .when()
+            .post("/api/members")
+            .then()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract()
+            .header(HttpHeaders.LOCATION);
+
+        // 로그인하여 JWT 토큰 획득
+        String loginRequestBody = """
+            {
+                "email": "gdkim@gmail.com",
+                "password": "gdkimSecret123"
+            }
+            """;
+
+        String accessToken = given()
+            .contentType(ContentType.JSON)
+            .body(loginRequestBody)
+            .when()
+            .post("/api/auth/login")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract()
+            .jsonPath()
+            .getString("accessToken");
+
+        // 회원 정보 조회
+        given()
+            .header("Authorization", "Bearer " + accessToken)
+            .when()
+            .get(location)
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .body("name", equalTo("김길동"))
+            .body("email", equalTo("gdkim@gmail.com"))
+            .body("phone", equalTo("010-1111-2222"))
+            .body("joinedAt", matchesRegex("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*$"));
+    }
+
+    @Test
+    void Authorization_헤더_없이_회원_조회시_401_Unauthorized_응답한다() {
+        // 회원가입
+        String signupRequestBody = """
+            {
+                "name": "김길동",
+                "email": "gdkim@gmail.com",
+                "password": "gdkimSecret123",
+                "phone": "010-1111-2222"
+            }
+            """;
+
+        String location = given()
+            .contentType(ContentType.JSON)
+            .body(signupRequestBody)
+            .when()
+            .post("/api/members")
+            .then()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract()
+            .header(HttpHeaders.LOCATION);
+
+        // Authorization 헤더 없이 회원 정보 조회
+        given()
+            .when()
+            .get(location)
+            .then()
+            .statusCode(HttpStatus.UNAUTHORIZED.value());
+    }
+
+    @Test
+    void 본인이_아닌_다른_회원_조회시_403_Forbidden을_응답한다() {
+        // 첫 번째 회원 가입
+        String firstMemberRequestBody = """
+            {
+                "name": "김길동",
+                "email": "gdkim@gmail.com",
+                "password": "gdkimSecret123",
+                "phone": "010-1111-2222"
+            }
+            """;
+
+        String firstMemberLocation = given()
+            .contentType(ContentType.JSON)
+            .body(firstMemberRequestBody)
+            .when()
+            .post("/api/members")
+            .then()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract()
+            .header(HttpHeaders.LOCATION);
+
+        // 두 번째 회원 가입
+        String secondMemberRequestBody = """
+            {
+                "name": "홍길동",
+                "email": "gdhong@gmail.com",
+                "password": "gdhongSecret123",
+                "phone": "010-3333-4444"
+            }
+            """;
+
+        given()
+            .contentType(ContentType.JSON)
+            .body(secondMemberRequestBody)
+            .when()
+            .post("/api/members")
+            .then()
+            .statusCode(HttpStatus.CREATED.value());
+
+        // 두 번째 회원으로 로그인
+        String secondMemberLoginRequestBody = """
+            {
+                "email": "gdhong@gmail.com",
+                "password": "gdhongSecret123"
+            }
+            """;
+
+        String secondMemberAccessToken = given()
+            .contentType(ContentType.JSON)
+            .body(secondMemberLoginRequestBody)
+            .when()
+            .post("/api/auth/login")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract()
+            .jsonPath()
+            .getString("accessToken");
+
+        // 두 번째 회원의 토큰으로 첫 번째 회원 정보 조회 시도
+        given()
+            .header("Authorization", "Bearer " + secondMemberAccessToken)
+            .when()
+            .get(firstMemberLocation)
+            .then()
+            .statusCode(HttpStatus.FORBIDDEN.value());
     }
 }

@@ -2,6 +2,7 @@ package com.aipiabackend.auth.service;
 
 import com.aipiabackend.auth.config.JwtProperties;
 import com.aipiabackend.member.model.Member;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -35,5 +36,15 @@ public class TokenService {
             .expiration(expiryDate)
             .signWith(secretKey)
             .compact();
+    }
+
+    public Long extractMemberId(String token) {
+        Claims claims = Jwts.parser()
+            .verifyWith(secretKey)
+            .build()
+            .parseSignedClaims(token)
+            .getPayload();
+
+        return Long.parseLong(claims.getSubject());
     }
 }
