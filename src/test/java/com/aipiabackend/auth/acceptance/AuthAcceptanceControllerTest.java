@@ -59,7 +59,7 @@ public class AuthAcceptanceControllerTest {
             .contentType(ContentType.JSON)
             .body(loginRequestBody)
             .when()
-            .post("/api/login")
+            .post("/api/auth/login")
             .then()
             .statusCode(HttpStatus.OK.value())
             .body("access-token", notNullValue());
@@ -78,7 +78,7 @@ public class AuthAcceptanceControllerTest {
             .contentType(ContentType.JSON)
             .body(loginRequestBody)
             .when()
-            .post("/api/login")
+            .post("/api/auth/login")
             .then()
             .statusCode(HttpStatus.UNAUTHORIZED.value());
     }
@@ -115,7 +115,7 @@ public class AuthAcceptanceControllerTest {
             .contentType(ContentType.JSON)
             .body(loginRequestBody)
             .when()
-            .post("/api/login")
+            .post("/api/auth/login")
             .then()
             .statusCode(HttpStatus.UNAUTHORIZED.value());
     }

@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
 public class MemberService {
@@ -30,5 +31,10 @@ public class MemberService {
         String encodedPassword = passwordEncoder.encode(command.password());
         Member member = Member.of(command.name(), command.email(), encodedPassword, command.phone());
         return memberRepository.save(member);
+    }
+
+    public Member findByEmail(String email) {
+        return memberRepository.findByEmail(email)
+            .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다: " + email));
     }
 }
