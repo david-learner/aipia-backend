@@ -14,16 +14,16 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(DuplicatedPhoneExistenceException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicatedPhoneExistence(DuplicatedPhoneExistenceException e) {
-        ErrorCodeMessage errorCodeMessage = ErrorCodeMessage.DUPLICATED_PHONE_EXISTENCE;
-        ErrorResponse errorResponse = new ErrorResponse(errorCodeMessage.code(), errorCodeMessage.message());
+    public ResponseEntity<ErrorResponse> handleDuplicatedPhoneExistence(DuplicatedPhoneExistenceException exception) {
+        ErrorResponse errorResponse =
+            ErrorResponse.ofDetail(exception.getErrorCodeMessage(), exception.getDetailMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 
     @ExceptionHandler(DuplicatedEmailExistenceException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicatedEmailExistence(DuplicatedEmailExistenceException e) {
-        ErrorCodeMessage errorCodeMessage = ErrorCodeMessage.DUPLICATED_EMAIL_EXISTENCE;
-        ErrorResponse errorResponse = new ErrorResponse(errorCodeMessage.code(), errorCodeMessage.message());
+    public ResponseEntity<ErrorResponse> handleDuplicatedEmailExistence(DuplicatedEmailExistenceException exception) {
+        ErrorResponse errorResponse =
+            ErrorResponse.ofDetail(exception.getErrorCodeMessage(), exception.getDetailMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 

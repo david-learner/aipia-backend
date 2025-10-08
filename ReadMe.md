@@ -164,7 +164,7 @@ Order ↔ Payment (1:1)
 {
     "code": "AIPIA-0001",
     "message": "이미 존재하는 휴대폰 번호입니다.",
-    "detail": "phone='010-1111-2222'"
+    "detailMessage": "phone='010-1111-2222'"
 }
 ```
 

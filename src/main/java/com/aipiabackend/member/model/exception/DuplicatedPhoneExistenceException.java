@@ -1,7 +1,15 @@
 package com.aipiabackend.member.model.exception;
 
-public class DuplicatedPhoneExistenceException extends RuntimeException {
-    public DuplicatedPhoneExistenceException(String message) {
-        super(message);
+import com.aipiabackend.support.model.ErrorCodeMessage;
+import com.aipiabackend.support.model.exception.AipiaException;
+
+public class DuplicatedPhoneExistenceException extends AipiaException {
+    public DuplicatedPhoneExistenceException(ErrorCodeMessage errorCodeMessage,
+                                             String detailMessage) {
+        super(errorCodeMessage, detailMessage);
+    }
+
+    public DuplicatedPhoneExistenceException(ErrorCodeMessage errorCodeMessage) {
+        super(errorCodeMessage);
     }
 }

@@ -1,7 +1,9 @@
 package com.aipiabackend.support.model.exception;
 
 import com.aipiabackend.support.model.ErrorCodeMessage;
+import lombok.Getter;
 
+@Getter
 public class AipiaException extends RuntimeException {
 
     private final ErrorCodeMessage errorCodeMessage;
