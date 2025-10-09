@@ -32,17 +32,25 @@ public class SpringSecurityConfig {
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/api/members").permitAll()
                 .requestMatchers("/api/auth/login").permitAll()
+                .requestMatchers("/api/products/**").hasRole("ADMIN")
                 .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/error/**").permitAll()
                 .anyRequest().authenticated()
             )
-            // 인증되지 않은 사용자가 요청시 에러 처리
             .exceptionHandling(exceptions -> exceptions
+                // 인증되지 않은 사용자가 요청시 에러 처리
                 .authenticationEntryPoint((request, response, authException) -> {
                     response.setStatus(401);
                     response.setContentType("application/json");
                     response.setCharacterEncoding("UTF-8");
                     response.getWriter().write(objectMapper.writeValueAsString(ErrorResponse.of(UNAUTHORIZED_USER)));
+                })
+                // 권한이 없는 사용자가 요청시 에러 처리
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    response.setStatus(403);
+                    response.setContentType("application/json");
+                    response.setCharacterEncoding("UTF-8");
+                    response.getWriter().write(objectMapper.writeValueAsString(ErrorResponse.of(ACCESS_DENIED)));
                 })
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

@@ -363,7 +363,7 @@ OrderLine 객체
     - [x] 회원가입 API
     - [x] 로그인 API
     - [x] 회원 단건 조회 API
-    - [ ] 상품 생성 API
+    - [x] 상품 생성 API
     - [ ] 주문 생성 API
     - [ ] 주문 결제 API
     - [ ] 주문 단건 조회 API
