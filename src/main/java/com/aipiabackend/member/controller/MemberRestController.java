@@ -55,7 +55,7 @@ public class MemberRestController {
         @PathVariable Long memberId,
         @AuthenticationPrincipal MemberPrincipal principal
     ) {
-        Member member = memberService.retrieveMemberById(memberId, principal.getMemberId());
+        Member member = memberService.retrieveMemberById(memberId, principal);
         return ResponseEntity.ok(MemberResponse.from(member));
     }
 }

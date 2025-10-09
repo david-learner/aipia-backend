@@ -4,6 +4,8 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.matchesRegex;
 
+import com.aipiabackend.member.model.Member;
+import com.aipiabackend.member.repository.MemberRepository;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.apache.http.HttpHeaders;
@@ -11,9 +13,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -24,6 +28,12 @@ public class MemberAcceptanceTest {
 
     @LocalServerPort
     private int port;
+
+    @Autowired
+    private MemberRepository memberRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @BeforeEach
     void setUp() {
@@ -293,6 +303,7 @@ public class MemberAcceptanceTest {
             .body("name", equalTo("김길동"))
             .body("email", equalTo("gdkim@gmail.com"))
             .body("phone", equalTo("010-1111-2222"))
+            .body("grade", equalTo("MEMBER"))
             .body("joinedAt", matchesRegex("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*$"));
     }
 
@@ -392,5 +403,68 @@ public class MemberAcceptanceTest {
             .get(firstMemberLocation)
             .then()
             .statusCode(HttpStatus.FORBIDDEN.value());
+    }
+
+    @Test
+    void 관리자는_다른_회원의_정보를_조회할_수_있다() {
+        // 일반 회원 가입
+        String memberRequestBody = """
+            {
+                "name": "김길동",
+                "email": "gdkim@gmail.com",
+                "password": "gdkimSecret123",
+                "phone": "010-1111-2222"
+            }
+            """;
+
+        String memberLocation = given()
+            .contentType(ContentType.JSON)
+            .body(memberRequestBody)
+            .when()
+            .post("/api/members")
+            .then()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract()
+            .header(HttpHeaders.LOCATION);
+
+        // 관리자 회원 직접 생성
+        Member admin = Member.ofAdmin(
+            "관리자",
+            "admin@example.com",
+            passwordEncoder.encode("adminSecret123"),
+            "010-9999-9999"
+        );
+        memberRepository.save(admin);
+
+        // 관리자로 로그인
+        String adminLoginRequestBody = """
+            {
+                "email": "admin@example.com",
+                "password": "adminSecret123"
+            }
+            """;
+
+        String adminAccessToken = given()
+            .contentType(ContentType.JSON)
+            .body(adminLoginRequestBody)
+            .when()
+            .post("/api/auth/login")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract()
+            .jsonPath()
+            .getString("accessToken");
+
+        // 관리자 토큰으로 일반 회원 정보 조회
+        given()
+            .header("Authorization", "Bearer " + adminAccessToken)
+            .when()
+            .get(memberLocation)
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .body("name", equalTo("김길동"))
+            .body("email", equalTo("gdkim@gmail.com"))
+            .body("phone", equalTo("010-1111-2222"))
+            .body("grade", equalTo("MEMBER"));
     }
 }

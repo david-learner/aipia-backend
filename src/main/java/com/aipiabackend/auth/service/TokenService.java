@@ -1,6 +1,9 @@
 package com.aipiabackend.auth.service;
 
+import static com.aipiabackend.auth.model.ClaimType.*;
+
 import com.aipiabackend.auth.config.JwtProperties;
+import com.aipiabackend.auth.model.ClaimType;
 import com.aipiabackend.member.model.Member;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -32,6 +35,7 @@ public class TokenService {
 
         return Jwts.builder()
             .subject(String.valueOf(member.getId()))
+            .claim(GRADE.value(), member.getGrade().name())
             .issuedAt(now)
             .expiration(expiryDate)
             .signWith(secretKey)
@@ -39,12 +43,20 @@ public class TokenService {
     }
 
     public Long extractMemberId(String token) {
-        Claims claims = Jwts.parser()
+        Claims claims = extractClaims(token);
+        return Long.parseLong(claims.getSubject());
+    }
+
+    public String extractGrade(String token) {
+        Claims claims = extractClaims(token);
+        return claims.get(GRADE.value(), String.class);
+    }
+
+    private Claims extractClaims(String token) {
+        return Jwts.parser()
             .verifyWith(secretKey)
             .build()
             .parseSignedClaims(token)
             .getPayload();
-
-        return Long.parseLong(claims.getSubject());
     }
 }

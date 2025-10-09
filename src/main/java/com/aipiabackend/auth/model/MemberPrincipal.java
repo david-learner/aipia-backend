@@ -1,10 +1,12 @@
 package com.aipiabackend.auth.model;
 
+import com.aipiabackend.member.model.MemberGrade;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @Getter
@@ -12,10 +14,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class MemberPrincipal implements UserDetails {
 
     private final Long memberId;
+    private final MemberGrade grade;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.emptyList();
+        return List.of(new SimpleGrantedAuthority("ROLE_" + grade.name()));
     }
 
     @Override

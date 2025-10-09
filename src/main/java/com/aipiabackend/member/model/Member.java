@@ -36,6 +36,9 @@ public class Member {
     @Column(name = "withdrawn_at")
     private LocalDateTime withdrawnAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10)
+    private MemberGrade grade;
 
     public void withdraw() {
         this.withdrawnAt = LocalDateTime.now();
@@ -45,7 +48,11 @@ public class Member {
         return withdrawnAt != null;
     }
 
-    public static Member of(String name, String email, String password, String phone) {
-        return new Member(null, name, email, password, phone, LocalDateTime.now(), null);
+    public static Member ofMember(String name, String email, String password, String phone) {
+        return new Member(null, name, email, password, phone, LocalDateTime.now(), null, MemberGrade.MEMBER);
+    }
+
+    public static Member ofAdmin(String name, String email, String password, String phone) {
+        return new Member(null, name, email, password, phone, LocalDateTime.now(), null, MemberGrade.ADMIN);
     }
 }

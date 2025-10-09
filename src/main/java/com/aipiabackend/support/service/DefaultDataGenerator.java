@@ -22,7 +22,7 @@ public class DefaultDataGenerator implements CommandLineRunner {
         // 데이터가 없을 때만 초기 데이터 추가
         if (memberRepository.count() == 0) {
             // 1. 탈퇴하지 않은 회원
-            Member activeMember = Member.of(
+            Member activeMember = Member.ofMember(
                 "박민수",
                 "mspark@example.com",
                 passwordEncoder.encode("password123"),
@@ -31,7 +31,7 @@ public class DefaultDataGenerator implements CommandLineRunner {
             memberRepository.save(activeMember);
 
             // 2. 탈퇴한 회원
-            Member withdrawnMember = Member.of(
+            Member withdrawnMember = Member.ofMember(
                 "최영희",
                 "yhchoi@example.com",
                 passwordEncoder.encode("password123"),

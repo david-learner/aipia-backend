@@ -254,6 +254,7 @@ Order ↔ Payment (1:1)
      "name": "김길동",
      "email": "gdkim@gmail.com",
      "phone": "010-1111-2222",
+     "grade": "MEMBER",
      "joinedAt": "2023-10-01T12:00:00"
     }
     ```
@@ -264,6 +265,7 @@ Order ↔ Payment (1:1)
      "name": "홍길동",
      "email": "gdhong@gmail.com",
      "phone": "010-3333-4444",
+     "grade": "MEMBER",
      "joinedAt": "2023-10-01T12:00:00",
      "withdrawnAt": "2025-10-01T12:00:00"
     }

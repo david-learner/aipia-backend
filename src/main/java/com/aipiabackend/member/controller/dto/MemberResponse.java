@@ -1,6 +1,7 @@
 package com.aipiabackend.member.controller.dto;
 
 import com.aipiabackend.member.model.Member;
+import com.aipiabackend.member.model.MemberGrade;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.LocalDateTime;
 
@@ -10,6 +11,7 @@ public record MemberResponse(
     String name,
     String email,
     String phone,
+    MemberGrade grade,
     LocalDateTime joinedAt,
     LocalDateTime withdrawnAt
 ) {
@@ -19,6 +21,7 @@ public record MemberResponse(
             member.getName(),
             member.getEmail(),
             member.getPhone(),
+            member.getGrade(),
             member.getJoinedAt(),
             member.getWithdrawnAt()
         );
