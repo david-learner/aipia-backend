@@ -1,6 +1,8 @@
 spring:
   application:
     name: aipia-backend
+  jpa:
+    open-in-view: false
 
 jwt:
   secret: mySecretKey123456789012345678901234567890
