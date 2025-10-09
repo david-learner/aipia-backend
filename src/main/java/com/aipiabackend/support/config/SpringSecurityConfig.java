@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -30,11 +31,17 @@ public class SpringSecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/api/members").permitAll()
-                .requestMatchers("/api/auth/login").permitAll()
-                .requestMatchers("/api/products/**").hasRole("ADMIN")
+                // 애플리케이션 또는 인프라 경로
                 .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/error/**").permitAll()
+                // 서비스를 위한 허용된 경로
+                .requestMatchers("/api/auth/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/members").permitAll()
+                // 회원에게 허용된 경로
+                .requestMatchers(HttpMethod.GET, "/api/members/me").authenticated()
+                // 관리자에게만 허용된 경로
+                .requestMatchers("/api/members/**").hasRole("ADMIN")
+                .requestMatchers("/api/products/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
             .exceptionHandling(exceptions -> exceptions

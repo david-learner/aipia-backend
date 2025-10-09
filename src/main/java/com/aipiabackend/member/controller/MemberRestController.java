@@ -63,10 +63,9 @@ public class MemberRestController {
      */
     @GetMapping("/{memberId}")
     public ResponseEntity<MemberResponse> retrieve(
-        @PathVariable Long memberId,
-        @AuthenticationPrincipal MemberPrincipal principal
+        @PathVariable Long memberId
     ) {
-        Member member = memberService.retrieveMemberById(memberId, principal);
+        Member member = memberService.retrieveMember(memberId);
         return ResponseEntity.ok(MemberResponse.from(member));
     }
 }

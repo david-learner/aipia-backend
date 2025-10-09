@@ -2,12 +2,10 @@ package com.aipiabackend.member.service;
 
 import static com.aipiabackend.support.model.ErrorCodeMessage.DUPLICATED_EMAIL_EXISTENCE;
 import static com.aipiabackend.support.model.ErrorCodeMessage.DUPLICATED_PHONE_EXISTENCE;
-import static com.aipiabackend.support.model.ErrorCodeMessage.MEMBER_ACCESS_FORBIDDEN;
 import static com.aipiabackend.support.model.ErrorCodeMessage.WITHDRAWN_MEMBER_ACCESS_FORBIDDEN;
 
 import com.aipiabackend.auth.model.MemberPrincipal;
 import com.aipiabackend.member.model.Member;
-import com.aipiabackend.member.model.MemberGrade;
 import com.aipiabackend.member.model.exception.DuplicatedEmailExistenceException;
 import com.aipiabackend.member.model.exception.DuplicatedPhoneExistenceException;
 import com.aipiabackend.member.model.exception.MemberAccessForbiddenException;
@@ -61,34 +59,14 @@ public class MemberService {
      * 회원 정보를 조회한다
      *
      * @param requestedMemberId 요청한 회원 ID
-     * @param principal         인증된 회원 정보
      * @throws MemberAccessForbiddenException 일반 회원이 본인이 아닌 다른 회원을 조회하려고 할 경우 발생
      */
-    public Member retrieveMemberById(Long requestedMemberId, MemberPrincipal principal) {
-        /**
-         * todo: 자신의 정보를 조회하는 건 /api/members/me로 분리하고, 관리자가 회원 조회하는 건 /api/members/{memberId}로 분리하기
-         * 그러면, 스프링 시큐리티의 경로별로 권한을 설정할 수 있기 때문에 회원 조회 코드 내에서 권한 분기 코드를 제거할 수 있음
-         */
-
-        // 관리자는 모든 회원 조회 가능
-        if (principal.getGrade() == MemberGrade.ADMIN) {
-            return findById(requestedMemberId);
-        }
-
-        // 일반 회원은 본인만 조회 가능
-        if (!requestedMemberId.equals(principal.getMemberId())) {
-            throw new MemberAccessForbiddenException(
-                MEMBER_ACCESS_FORBIDDEN,
-                "requestedMemberId='%s', authenticatedMemberId='%s'".formatted(requestedMemberId,
-                    principal.getMemberId())
-            );
-        }
-
+    public Member retrieveMember(Long requestedMemberId) {
         return findById(requestedMemberId);
     }
 
     /**
-     * 회원 본인의 정보를 조회한다 s
+     * 회원 본인의 정보를 조회한다
      *
      * @throws WithdrawnMemberAccessForbiddenException 탈퇴한 회원이 조회를 시도할 경우 발생
      */

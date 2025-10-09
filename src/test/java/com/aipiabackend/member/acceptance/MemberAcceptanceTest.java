@@ -253,61 +253,6 @@ public class MemberAcceptanceTest {
     }
 
     @Test
-    void 회원은_본인의_정보를_조회할_수_있다() {
-        // 회원가입
-        String signupRequestBody = """
-            {
-                "name": "김길동",
-                "email": "gdkim@gmail.com",
-                "password": "gdkimSecret123",
-                "phone": "010-1111-2222"
-            }
-            """;
-
-        String location = given()
-            .contentType(ContentType.JSON)
-            .body(signupRequestBody)
-            .when()
-            .post("/api/members")
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract()
-            .header(HttpHeaders.LOCATION);
-
-        // 로그인하여 JWT 토큰 획득
-        String loginRequestBody = """
-            {
-                "email": "gdkim@gmail.com",
-                "password": "gdkimSecret123"
-            }
-            """;
-
-        String accessToken = given()
-            .contentType(ContentType.JSON)
-            .body(loginRequestBody)
-            .when()
-            .post("/api/auth/login")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract()
-            .jsonPath()
-            .getString("accessToken");
-
-        // 회원 정보 조회
-        given()
-            .header("Authorization", "Bearer " + accessToken)
-            .when()
-            .get(location)
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .body("name", equalTo("김길동"))
-            .body("email", equalTo("gdkim@gmail.com"))
-            .body("phone", equalTo("010-1111-2222"))
-            .body("grade", equalTo("MEMBER"))
-            .body("joinedAt", matchesRegex("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*$"));
-    }
-
-    @Test
     void Authorization_헤더_없이_회원_조회시_401_Unauthorized_응답한다() {
         // 회원가입
         String signupRequestBody = """
