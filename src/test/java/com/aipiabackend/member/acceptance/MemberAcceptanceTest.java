@@ -467,4 +467,109 @@ public class MemberAcceptanceTest {
             .body("phone", equalTo("010-1111-2222"))
             .body("grade", equalTo("MEMBER"));
     }
+
+    @Test
+    void 회원은_me_엔드포인트로_본인의_정보를_조회할_수_있다() {
+        // 회원가입
+        String signupRequestBody = """
+            {
+                "name": "박철수",
+                "email": "cspark@gmail.com",
+                "password": "csparkSecret123",
+                "phone": "010-5555-6666"
+            }
+            """;
+
+        given()
+            .contentType(ContentType.JSON)
+            .body(signupRequestBody)
+            .when()
+            .post("/api/members")
+            .then()
+            .statusCode(HttpStatus.CREATED.value());
+
+        // 로그인하여 JWT 토큰 획득
+        String loginRequestBody = """
+            {
+                "email": "cspark@gmail.com",
+                "password": "csparkSecret123"
+            }
+            """;
+
+        String accessToken = given()
+            .contentType(ContentType.JSON)
+            .body(loginRequestBody)
+            .when()
+            .post("/api/auth/login")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract()
+            .jsonPath()
+            .getString("accessToken");
+
+        // /me 엔드포인트로 본인 정보 조회
+        given()
+            .header("Authorization", "Bearer " + accessToken)
+            .when()
+            .get("/api/members/me")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .body("name", equalTo("박철수"))
+            .body("email", equalTo("cspark@gmail.com"))
+            .body("phone", equalTo("010-5555-6666"))
+            .body("grade", equalTo("MEMBER"))
+            .body("joinedAt", matchesRegex("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*$"));
+    }
+
+    @Test
+    void 탈퇴한_회원이_me_엔드포인트로_조회시_403_Forbidden을_응답한다() {
+        // 회원 생성 및 탈퇴 처리
+        Member member = Member.ofMember(
+            "이영희",
+            "yhlee@gmail.com",
+            passwordEncoder.encode("yhleeSecret123"),
+            "010-7777-8888"
+        );
+        member.withdraw();
+        memberRepository.save(member);
+
+        // 로그인하여 JWT 토큰 획득
+        String loginRequestBody = """
+            {
+                "email": "yhlee@gmail.com",
+                "password": "yhleeSecret123"
+            }
+            """;
+
+        String accessToken = given()
+            .contentType(ContentType.JSON)
+            .body(loginRequestBody)
+            .when()
+            .post("/api/auth/login")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract()
+            .jsonPath()
+            .getString("accessToken");
+
+        // 탈퇴한 회원이 /me 엔드포인트로 조회 시도
+        given()
+            .header("Authorization", "Bearer " + accessToken)
+            .when()
+            .get("/api/members/me")
+            .then()
+            .statusCode(HttpStatus.FORBIDDEN.value())
+            .body("code", equalTo("AIPIA-0008"))
+            .body("message", equalTo("탈퇴한 회원은 조회할 수 없습니다."));
+    }
+
+    @Test
+    void Authorization_헤더_없이_me_엔드포인트_호출시_401_Unauthorized_응답한다() {
+        // Authorization 헤더 없이 /me 엔드포인트 호출
+        given()
+            .when()
+            .get("/api/members/me")
+            .then()
+            .statusCode(HttpStatus.UNAUTHORIZED.value());
+    }
 }
