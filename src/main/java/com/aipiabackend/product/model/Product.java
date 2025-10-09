@@ -44,4 +44,11 @@ public class Product {
     public static Product of(String name, Long price, Integer stock, String description) {
         return new Product(null, name, price, stock, description, false, LocalDateTime.now());
     }
+
+    public void decreaseStock(Integer count) {
+        if (this.stock < count) {
+            throw new IllegalArgumentException("재고가 부족합니다.");
+        }
+        this.stock = this.stock - count;
+    }
 }

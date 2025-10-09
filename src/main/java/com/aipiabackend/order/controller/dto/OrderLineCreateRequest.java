@@ -13,9 +13,9 @@ public record OrderLineCreateRequest(
     Integer productQuantity,
 
     @NotNull(message = "상품 가격은 필수입니다")
-    BigDecimal productPrice,
+    Long productPrice,
 
     @NotNull(message = "금액은 필수입니다")
-    BigDecimal amount
+    Long amount
 ) {
 }

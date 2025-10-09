@@ -29,12 +29,12 @@ public class OrderLine {
     private Integer productQuantity;
 
     @Column(name = "product_price", nullable = false, precision = 19, scale = 2)
-    private BigDecimal productPrice;
+    private Long productPrice;
 
     @Column(nullable = false, precision = 19, scale = 2)
-    private BigDecimal amount;
+    private Long amount;
 
-    public static OrderLine of(Long productId, Integer productQuantity, BigDecimal productPrice, BigDecimal amount) {
+    public static OrderLine of(Long productId, Integer productQuantity, Long productPrice, Long amount) {
         return new OrderLine(null, null, productId, productQuantity, productPrice, amount);
     }
 
