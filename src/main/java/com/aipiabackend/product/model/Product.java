@@ -1,7 +1,11 @@
 package com.aipiabackend.product.model;
 
-import jakarta.persistence.*;
-import java.math.BigDecimal;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -22,8 +26,8 @@ public class Product {
     @Column(nullable = false, length = 50)
     private String name;
 
-    @Column(nullable = false, precision = 19, scale = 2)
-    private BigDecimal price;
+    @Column(nullable = false)
+    private Long price;
 
     @Column(nullable = false)
     private Integer stock;
@@ -37,7 +41,7 @@ public class Product {
     @Column(name = "registered_at", nullable = false)
     private LocalDateTime registeredAt;
 
-    public static Product of(String name, BigDecimal price, Integer stock, String description) {
+    public static Product of(String name, Long price, Integer stock, String description) {
         return new Product(null, name, price, stock, description, false, LocalDateTime.now());
     }
 }

@@ -2,13 +2,12 @@ package com.aipiabackend.order.service.dto;
 
 import com.aipiabackend.order.model.Order;
 import com.aipiabackend.order.model.OrderLine;
-import java.math.BigDecimal;
 import java.util.List;
 
 public record OrderCreateCommand(
     Long memberId,
     List<OrderLineCreateCommand> orderLines,
-    BigDecimal amount
+    Long amount
 ) {
     private List<OrderLine> toOrderLines() {
         return orderLines.stream().map(orderLine -> OrderLine.of(

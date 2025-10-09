@@ -9,8 +9,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
-
 /**
  * 기본 데이터 생성을 위한 클래스
  */
@@ -60,7 +58,7 @@ public class DefaultDataGenerator implements CommandLineRunner {
             // 1. 노트북
             Product laptop = Product.of(
                 "고성능 노트북",
-                new BigDecimal("1500000.00"),
+                1500000L,
                 10,
                 "최신 프로세서와 16GB RAM을 장착한 고성능 노트북입니다."
             );
@@ -69,7 +67,7 @@ public class DefaultDataGenerator implements CommandLineRunner {
             // 2. 무선 마우스
             Product mouse = Product.of(
                 "무선 마우스",
-                new BigDecimal("35000.00"),
+                35000L,
                 50,
                 "인체공학적 디자인의 무선 마우스입니다."
             );

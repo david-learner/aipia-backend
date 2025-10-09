@@ -28,12 +28,12 @@ public class Order {
     private List<OrderLine> orderLines = new ArrayList<>();
 
     @Column(nullable = false, precision = 19, scale = 2)
-    private BigDecimal amount;
+    private Long amount;
 
     @Column(name = "ordered_at", nullable = false)
     private LocalDateTime orderedAt;
 
-    public static Order of(Long memberId, List<OrderLine> orderLines, BigDecimal amount) {
+    public static Order of(Long memberId, List<OrderLine> orderLines, Long amount) {
         Order order = new Order(null, memberId, new ArrayList<>(), amount, LocalDateTime.now());
         orderLines.forEach(order::addOrderLine);
         return order;

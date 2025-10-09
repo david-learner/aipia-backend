@@ -5,7 +5,6 @@ import com.aipiabackend.order.service.dto.OrderLineCreateCommand;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import java.math.BigDecimal;
 import java.util.List;
 
 public record OrderCreateRequest(
@@ -17,7 +16,7 @@ public record OrderCreateRequest(
     List<OrderLineCreateRequest> orderLines,
 
     @NotNull(message = "주문 금액은 필수입니다")
-    BigDecimal amount
+    Long amount
 ) {
 
     /**
