@@ -430,7 +430,7 @@ public class MemberAcceptanceTest {
         // 관리자 회원 직접 생성
         Member admin = Member.ofAdmin(
             "관리자",
-            "admin@example.com",
+            "test-admin@example.com",
             passwordEncoder.encode("adminSecret123"),
             "010-9999-9999"
         );
@@ -439,7 +439,7 @@ public class MemberAcceptanceTest {
         // 관리자로 로그인
         String adminLoginRequestBody = """
             {
-                "email": "admin@example.com",
+                "email": "test-admin@example.com",
                 "password": "adminSecret123"
             }
             """;
