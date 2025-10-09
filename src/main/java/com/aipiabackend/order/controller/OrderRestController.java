@@ -25,7 +25,7 @@ public class OrderRestController {
      */
     @PostMapping
     public ResponseEntity<Void> createOrder(@Valid @RequestBody OrderCreateRequest request) {
-        Order savedOrder = orderService.createOrder(request.toOrderCreateCommand());
+        Order savedOrder = orderService.create(request.toOrderCreateCommand());
 
         UriComponents orderUriComponents = UriComponentsBuilder
             .fromUriString("/api/orders/{orderId}")

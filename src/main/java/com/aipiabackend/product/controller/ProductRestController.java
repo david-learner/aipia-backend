@@ -33,7 +33,7 @@ public class ProductRestController {
             request.description()
         );
 
-        Product savedProduct = productService.createProduct(command);
+        Product savedProduct = productService.create(command);
 
         UriComponents productUriComponents = UriComponentsBuilder
             .fromUriString("/api/products/{productId}")
