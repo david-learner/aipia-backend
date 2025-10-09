@@ -5,6 +5,7 @@ import static com.aipiabackend.support.model.ErrorCodeMessage.UNKNOWN;
 import com.aipiabackend.member.model.exception.DuplicatedEmailExistenceException;
 import com.aipiabackend.member.model.exception.DuplicatedPhoneExistenceException;
 import com.aipiabackend.member.model.exception.MemberAccessForbiddenException;
+import com.aipiabackend.member.model.exception.WithdrawnMemberAccessForbiddenException;
 import com.aipiabackend.support.dto.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +34,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MemberAccessForbiddenException.class)
     public ResponseEntity<Void> handleMemberAccessForbidden(MemberAccessForbiddenException exception) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+
+    @ExceptionHandler(WithdrawnMemberAccessForbiddenException.class)
+    public ResponseEntity<ErrorResponse> handleWithdrawnMemberAccessForbidden(
+        WithdrawnMemberAccessForbiddenException exception
+    ) {
+        ErrorResponse errorResponse = ErrorResponse.of(exception.getErrorCodeMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
     }
 
     @ExceptionHandler(BadCredentialsException.class)

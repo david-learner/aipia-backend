@@ -3,6 +3,7 @@ package com.aipiabackend.member.service;
 import static com.aipiabackend.support.model.ErrorCodeMessage.DUPLICATED_EMAIL_EXISTENCE;
 import static com.aipiabackend.support.model.ErrorCodeMessage.DUPLICATED_PHONE_EXISTENCE;
 import static com.aipiabackend.support.model.ErrorCodeMessage.MEMBER_ACCESS_FORBIDDEN;
+import static com.aipiabackend.support.model.ErrorCodeMessage.WITHDRAWN_MEMBER_ACCESS_FORBIDDEN;
 
 import com.aipiabackend.auth.model.MemberPrincipal;
 import com.aipiabackend.member.model.Member;
@@ -10,6 +11,7 @@ import com.aipiabackend.member.model.MemberGrade;
 import com.aipiabackend.member.model.exception.DuplicatedEmailExistenceException;
 import com.aipiabackend.member.model.exception.DuplicatedPhoneExistenceException;
 import com.aipiabackend.member.model.exception.MemberAccessForbiddenException;
+import com.aipiabackend.member.model.exception.WithdrawnMemberAccessForbiddenException;
 import com.aipiabackend.member.repository.MemberRepository;
 import com.aipiabackend.member.service.dto.MemberJoinCommand;
 import com.aipiabackend.support.model.ErrorCodeMessage;
@@ -83,5 +85,23 @@ public class MemberService {
         }
 
         return findById(requestedMemberId);
+    }
+
+    /**
+     * 회원 본인의 정보를 조회한다 s
+     *
+     * @throws WithdrawnMemberAccessForbiddenException 탈퇴한 회원이 조회를 시도할 경우 발생
+     */
+    public Member retrieveMe(Long memberId) {
+        Member member = findById(memberId);
+
+        if (member.isWithdrawn()) {
+            throw new WithdrawnMemberAccessForbiddenException(
+                WITHDRAWN_MEMBER_ACCESS_FORBIDDEN,
+                "memberId='%s'".formatted(memberId)
+            );
+        }
+
+        return member;
     }
 }

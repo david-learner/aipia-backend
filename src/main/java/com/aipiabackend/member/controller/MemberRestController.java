@@ -48,6 +48,17 @@ public class MemberRestController {
     }
 
     /**
+     * 회원 본인의 정보를 조회한다
+     */
+    @GetMapping("/me")
+    public ResponseEntity<MemberResponse> retrieveMe(
+        @AuthenticationPrincipal MemberPrincipal principal
+    ) {
+        Member member = memberService.retrieveMe(principal.getMemberId());
+        return ResponseEntity.ok(MemberResponse.from(member));
+    }
+
+    /**
      * 회원 정보를 조회한다
      */
     @GetMapping("/{memberId}")
