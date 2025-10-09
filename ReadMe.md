@@ -109,15 +109,15 @@ Order ↔ Payment (1:1)
 
 ### 2. Product (상품)
 
-| 필드명           | 데이터 타입   | 제약 조건 | 설명     |
-|---------------|----------|-------|--------|
-| id            | BIGINT   |       | 고유 식별자 |
-| name          | VARCHAR  |       | 이름     |
-| price         | DECIMAL  |       | 단가     |
-| stock         | INTEGER  |       | 수량     |
-| description   | VARCHAR  |       | 설명     |
-| deleted       | BOOLEAN  |       | 삭제 여부  | 
-| registered_at | DATETIME |       | 등록 일시  |
+| 필드명           | 데이터 타입      | 제약 조건 | 설명     |
+|---------------|-------------|-------|--------|
+| id            | BIGINT      |       | 고유 식별자 |
+| name          | VARCHAR(50) |       | 이름     |
+| price         | DECIMAL     |       | 단가     |
+| stock         | INTEGER     |       | 수량     |
+| description   | TEXT        |       | 설명     |
+| deleted       | BOOLEAN     |       | 삭제 여부  | 
+| registered_at | DATETIME    |       | 등록 일시  |
 
 ### 3. Order (주문)
 
