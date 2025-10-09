@@ -26,7 +26,7 @@ public class DefaultDataGenerator implements CommandLineRunner {
                 "박민수",
                 "mspark@example.com",
                 passwordEncoder.encode("password123"),
-                "010-5555-6666"
+                "010-0000-0001"
             );
             memberRepository.save(activeMember);
 
@@ -35,10 +35,19 @@ public class DefaultDataGenerator implements CommandLineRunner {
                 "최영희",
                 "yhchoi@example.com",
                 passwordEncoder.encode("password123"),
-                "010-7777-8888"
+                "010-0000-0002"
             );
             withdrawnMember.withdraw();
             memberRepository.save(withdrawnMember);
+
+            // 3. 관리자 회원
+            Member adminMember = Member.ofAdmin(
+                "관리자",
+                "admin@example.com",
+                passwordEncoder.encode("adminPassword123"),
+                "010-0000-0003"
+            );
+            memberRepository.save(adminMember);
         }
     }
 }
