@@ -24,17 +24,21 @@ public class Order {
     @Column(name = "member_id", nullable = false)
     private Long memberId;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private OrderStatus status;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderLine> orderLines = new ArrayList<>();
 
-    @Column(nullable = false, precision = 19, scale = 2)
+    @Column(nullable = false)
     private Long amount;
 
     @Column(name = "ordered_at", nullable = false)
     private LocalDateTime orderedAt;
 
     public static Order of(Long memberId, List<OrderLine> orderLines, Long amount) {
-        Order order = new Order(null, memberId, new ArrayList<>(), amount, LocalDateTime.now());
+        Order order = new Order(null, memberId, OrderStatus.PENDING, new ArrayList<>(), amount, LocalDateTime.now());
         orderLines.forEach(order::addOrderLine);
         return order;
     }
