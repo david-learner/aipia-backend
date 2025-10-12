@@ -1,5 +1,9 @@
 package com.aipiabackend.product.model;
 
+import static com.aipiabackend.support.model.ErrorCodeMessage.*;
+
+import com.aipiabackend.support.model.ErrorCodeMessage;
+import com.aipiabackend.support.model.exception.AipiaException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -47,7 +51,7 @@ public class Product {
 
     public void decreaseStock(Integer count) {
         if (this.stock < count) {
-            throw new IllegalArgumentException("재고가 부족합니다.");
+            throw new AipiaException(NOT_ENOUGH_STOCK);
         }
         this.stock = this.stock - count;
     }

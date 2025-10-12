@@ -34,8 +34,11 @@ public class ProductService {
         productRepository.save(product);
     }
 
-    public Product findById(Long productId) {
-        return productRepository.findById(productId)
+    /**
+     * 비관적 락(SELECT ... FOR UPDATE)으로 상품을 조회한다.
+     */
+    public Product findByIdWithPessimisticLock(Long productId) {
+        return productRepository.findByIdWithPessimisticLock(productId)
             .orElseThrow(() -> new AipiaException(
                 PRODUCT_NOT_FOUND, "productId='%s'".formatted(productId)));
     }
