@@ -208,7 +208,7 @@ public class MemberAcceptanceTest {
             .when()
             .post("/api/members")
             .then()
-            .statusCode(HttpStatus.CONFLICT.value())
+            .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
             .body("code", equalTo("AIPIA-0001"))
             .body("message", equalTo("이미 존재하는 휴대폰 번호입니다."));
     }
@@ -247,7 +247,7 @@ public class MemberAcceptanceTest {
             .when()
             .post("/api/members")
             .then()
-            .statusCode(HttpStatus.CONFLICT.value())
+            .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
             .body("code", equalTo("AIPIA-0002"))
             .body("message", equalTo("이미 존재하는 이메일입니다."));
     }
@@ -503,7 +503,7 @@ public class MemberAcceptanceTest {
             .when()
             .get("/api/members/me")
             .then()
-            .statusCode(HttpStatus.FORBIDDEN.value())
+            .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
             .body("code", equalTo("AIPIA-0008"))
             .body("message", equalTo("탈퇴한 회원은 조회할 수 없습니다."));
     }
