@@ -7,6 +7,7 @@ import com.aipiabackend.member.model.exception.DuplicatedPhoneExistenceException
 import com.aipiabackend.member.model.exception.MemberAccessForbiddenException;
 import com.aipiabackend.member.model.exception.WithdrawnMemberAccessForbiddenException;
 import com.aipiabackend.support.dto.ErrorResponse;
+import com.aipiabackend.support.model.exception.AipiaDomainException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -16,6 +17,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(AipiaDomainException.class)
+    public ResponseEntity<ErrorResponse> handleAipiaDomainException(AipiaDomainException exception) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponse.of(exception.getErrorCodeMessage()));
+    }
 
     @ExceptionHandler(DuplicatedPhoneExistenceException.class)
     public ResponseEntity<ErrorResponse> handleDuplicatedPhoneExistence(DuplicatedPhoneExistenceException exception) {
@@ -45,7 +51,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<Void> handleBadCredentials(BadCredentialsException e) {
+    public ResponseEntity<Void> handleBadCredentials(BadCredentialsException exception) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
