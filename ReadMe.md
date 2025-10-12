@@ -51,8 +51,10 @@
   - 주문시 요청한 총 주문 금액과 서버에서 계산된 총 주문 금액이 일치하지 않으면 주문할 수 없다.
 - 결제
   - 외부 결제 시스템과 연동하여 결제를 처리한다.
+  - 결제 요청 시 주문 상태가 `대기(PENDING)`인 주문만 결제할 수 있다.
   - 결제 시도시 결제 상태는 `대기(PENDING)`, `성공(SUCCEEDED)`, `실패(FAILED)`, `환불(REFUNDED)`, `취소(CANCELED)`가 있다.
   - 네트워크, 결제 시스템의 오류로 인해 외부 결제 시스템으로 전달된 요청이 실패할 경우 정해진 횟수만큼 결제 요청이 재시도 되어야 한다.
+  - 재시도 횟수가 모두 소진되면 결제 상태는 `실패(FAILED)`가 된다.
 
 ## 테스트 시나리오
 
@@ -229,14 +231,14 @@ Order ↔ Payment (1:1)
 **응답**:
 
 - 회원가입 성공: 201 Created
-- 휴대폰 번호 중복: 409 Conflict
+- 휴대폰 번호 중복: 500 Internal Server Error
   ```json
     {
         "code": "AIPIA-0001",
         "message": "이미 존재하는 휴대폰 번호입니다."
     }
   ```
-- 이메일 중복: 409 Conflict
+- 이메일 중복: 500 Internal Server Error
   ```json
     {
         "code": "AIPIA-0002",
@@ -371,9 +373,9 @@ OrderLine 객체
 
 - 주문 생성 성공: 201 Created
 
-### 주문 결제 API
+### 결제 API
 
-`POST /api/orders/{orderId}/pay`
+`POST /api/pays`
 
 **요청 헤더**
 
@@ -381,23 +383,25 @@ OrderLine 객체
 |---------------|-----------------------|--------------------------------------|
 | Authorization | Bearer {Access Token} | 사용자 인증 헤더. 로그인시 발급 받는 접근 토큰을 전달해야 한다 |
 
-**요청 경로 변수**
-
-| 필드명     | 타입   | 필수 여부 | 설명        |
-|---------|------|-------|-----------|
-| orderId | Long | Y     | 주문 고유 식별자 |
-
 **요청 본문**
 
 | 필드명                        | 타입     | 필수 여부 | 설명              |
 |----------------------------|--------|-------|-----------------|
+| orderId | Long | Y     | 주문 고유 식별자 |
 | cardNumber                 | String | Y     | 카드 번호           |
 | cardExpirationYearAndMonth | String | Y     | 카드 만료 연월 'MMYY' |
 | cardIssuerCode             | String | Y     | 카드 발급사 코드       |
 
 **응답**:
 
-- 주문 생성 성공: 200 Created
+- 결제 성공: 200 Created
+- 결제 실패: 500 Internal Server Error
+  ```json
+    {
+        "code": "AIPIA-0013",
+        "message": "결제에 실패하였습니다."
+    }
+  ```
 
 ## 해야 할 일
 

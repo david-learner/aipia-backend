@@ -13,7 +13,10 @@ public enum ErrorCodeMessage {
     WITHDRAWN_MEMBER_ACCESS_FORBIDDEN("AIPIA-0008", "탈퇴한 회원은 조회할 수 없습니다."),
     PRODUCT_NOT_FOUND("AIPIA-0009", "상품을 찾을 수 없습니다."),
     ORDER_LINE_AMOUNT_NOT_MATCHED("AIPIA-0010", "주문 라인의 주문 총액이 일치하지 않습니다."),
-    NOT_ENOUGH_STOCK("AIPIA-0011", "재고가 부족합니다.");
+    NOT_ENOUGH_STOCK("AIPIA-0011", "재고가 부족합니다."),
+    PAYMENT_SERVICE_PROVIDER_IS_NOT_WORKING("AIPIA-0012", "결제 서비스 제공자가 동작하지 않습니다."),
+    FAILED_TO_PAY("AIPIA-0013", "결제에 실패하였습니다."),
+    ;
 
     private String code;
     private String message;
