@@ -2,10 +2,6 @@ package com.aipiabackend.support.service;
 
 import static com.aipiabackend.support.model.ErrorCodeMessage.UNKNOWN;
 
-import com.aipiabackend.member.model.exception.DuplicatedEmailExistenceException;
-import com.aipiabackend.member.model.exception.DuplicatedPhoneExistenceException;
-import com.aipiabackend.member.model.exception.MemberAccessForbiddenException;
-import com.aipiabackend.member.model.exception.WithdrawnMemberAccessForbiddenException;
 import com.aipiabackend.support.dto.ErrorResponse;
 import com.aipiabackend.support.model.exception.AipiaDomainException;
 import org.springframework.http.HttpStatus;
@@ -21,33 +17,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AipiaDomainException.class)
     public ResponseEntity<ErrorResponse> handleAipiaDomainException(AipiaDomainException exception) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponse.of(exception.getErrorCodeMessage()));
-    }
-
-    @ExceptionHandler(DuplicatedPhoneExistenceException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicatedPhoneExistence(DuplicatedPhoneExistenceException exception) {
-        ErrorResponse errorResponse =
-            ErrorResponse.ofDetail(exception.getErrorCodeMessage(), exception.getDetailMessage());
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
-    }
-
-    @ExceptionHandler(DuplicatedEmailExistenceException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicatedEmailExistence(DuplicatedEmailExistenceException exception) {
-        ErrorResponse errorResponse =
-            ErrorResponse.ofDetail(exception.getErrorCodeMessage(), exception.getDetailMessage());
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
-    }
-
-    @ExceptionHandler(MemberAccessForbiddenException.class)
-    public ResponseEntity<Void> handleMemberAccessForbidden(MemberAccessForbiddenException exception) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-    }
-
-    @ExceptionHandler(WithdrawnMemberAccessForbiddenException.class)
-    public ResponseEntity<ErrorResponse> handleWithdrawnMemberAccessForbidden(
-        WithdrawnMemberAccessForbiddenException exception
-    ) {
-        ErrorResponse errorResponse = ErrorResponse.of(exception.getErrorCodeMessage());
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
