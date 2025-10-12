@@ -3,40 +3,14 @@ package com.aipiabackend.product.acceptance;
 import static io.restassured.RestAssured.given;
 
 import com.aipiabackend.member.model.Member;
-import com.aipiabackend.member.repository.MemberRepository;
-import io.restassured.RestAssured;
+import com.aipiabackend.support.AcceptanceTestBase;
 import io.restassured.http.ContentType;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class ProductAcceptanceTest {
-
-    @LocalServerPort
-    private int port;
-
-    @Autowired
-    private MemberRepository memberRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @BeforeEach
-    void setUp() {
-        RestAssured.port = port;
-        RestAssured.baseURI = "http://localhost";
-    }
+public class ProductAcceptanceTest extends AcceptanceTestBase {
 
     @Test
     void 관리자가_유효한_상품_정보로_상품을_생성한다() {

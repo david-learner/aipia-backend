@@ -5,41 +5,15 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.matchesRegex;
 
 import com.aipiabackend.member.model.Member;
-import com.aipiabackend.member.repository.MemberRepository;
-import io.restassured.RestAssured;
+import com.aipiabackend.support.AcceptanceTestBase;
 import io.restassured.http.ContentType;
 import org.apache.http.HttpHeaders;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class MemberAcceptanceTest {
-
-    @LocalServerPort
-    private int port;
-
-    @Autowired
-    private MemberRepository memberRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @BeforeEach
-    void setUp() {
-        RestAssured.port = port;
-        RestAssured.baseURI = "http://localhost";
-    }
+public class MemberAcceptanceTest extends AcceptanceTestBase {
 
     @Test
     void 비회원은_서비스에_가입하여_회원이_된다() {
