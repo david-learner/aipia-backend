@@ -2,9 +2,11 @@ package com.aipiabackend.support;
 
 import com.aipiabackend.member.repository.MemberRepository;
 import io.restassured.RestAssured;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.annotation.DirtiesContext;
@@ -18,7 +20,6 @@ import org.springframework.test.context.ActiveProfiles;
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public abstract class AcceptanceTestBase {
 
     @LocalServerPort
@@ -30,6 +31,9 @@ public abstract class AcceptanceTestBase {
     @Autowired
     protected PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private DatabaseCleanup databaseCleanup;
+
     /**
      * 각 테스트 실행 전 RestAssured 설정을 초기화합니다.
      *
@@ -39,5 +43,10 @@ public abstract class AcceptanceTestBase {
     void setUp() {
         RestAssured.port = port;
         RestAssured.baseURI = "http://localhost";
+    }
+
+    @AfterEach
+    void tearDown() {
+        databaseCleanup.cleanDatabase();
     }
 }
