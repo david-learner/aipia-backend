@@ -390,6 +390,28 @@ OrderLine 객체
 |---------|-----------------|-------|-----------|
 | orderId | Long            | Y     | 주문 고유 식별자 |
 
+**응답**:
+
+- 결제 성공: 200 Created
+  ```json
+    {
+      "id": 1,
+      "memberId": 10,
+      "status": "SUCCEEDED",
+      "orderLines": [
+        {
+          "id": 2,
+          "productId": 20,
+          "productQuantity": 2,
+          "productPrice": 5000,
+          "amount": 10000
+        }
+      ],
+      "amount": 10000,
+      "orderedAt": "2025-10-01T12:00:00"
+    }
+  ```
+
 ### 결제 API
 
 `POST /api/pays`

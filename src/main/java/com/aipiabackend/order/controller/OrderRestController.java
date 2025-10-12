@@ -1,11 +1,16 @@
 package com.aipiabackend.order.controller;
 
+import com.aipiabackend.auth.model.MemberPrincipal;
 import com.aipiabackend.order.controller.dto.OrderCreateRequest;
+import com.aipiabackend.order.controller.dto.OrderResponse;
 import com.aipiabackend.order.model.Order;
 import com.aipiabackend.order.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,5 +37,17 @@ public class OrderRestController {
             .buildAndExpand(savedOrder.getId());
 
         return ResponseEntity.created(orderUriComponents.toUri()).build();
+    }
+
+    /**
+     * 주문을 조회한다
+     */
+    @GetMapping("/{orderId}")
+    public ResponseEntity<OrderResponse> retrieveOrder(
+        @PathVariable Long orderId,
+        @AuthenticationPrincipal MemberPrincipal principal
+    ) {
+        Order order = orderService.retrieveOrder(orderId, principal.getMemberId(), principal.getGrade());
+        return ResponseEntity.ok(OrderResponse.from(order));
     }
 }

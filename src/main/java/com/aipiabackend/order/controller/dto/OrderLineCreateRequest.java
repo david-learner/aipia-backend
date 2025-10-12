@@ -2,7 +2,6 @@ package com.aipiabackend.order.controller.dto;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import java.math.BigDecimal;
 
 public record OrderLineCreateRequest(
     @NotNull(message = "상품 ID는 필수입니다")

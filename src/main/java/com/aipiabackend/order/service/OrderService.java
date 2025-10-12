@@ -1,8 +1,10 @@
 package com.aipiabackend.order.service;
 
+import static com.aipiabackend.support.model.ErrorCodeMessage.ORDER_ACCESS_FORBIDDEN;
 import static com.aipiabackend.support.model.ErrorCodeMessage.ORDER_LINE_AMOUNT_NOT_MATCHED;
-import static com.aipiabackend.support.model.ErrorCodeMessage.UNKNOWN;
+import static com.aipiabackend.support.model.ErrorCodeMessage.ORDER_NOT_FOUND;
 
+import com.aipiabackend.member.model.MemberGrade;
 import com.aipiabackend.order.model.Order;
 import com.aipiabackend.order.repository.OrderRepository;
 import com.aipiabackend.order.service.dto.OrderCreateCommand;
@@ -46,13 +48,30 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
-    public Order findById(Long id) {
-        return orderRepository.findById(id)
-            .orElseThrow(() -> new AipiaDomainException(UNKNOWN));
-    }
-
     @Transactional
     public Order save(Order order) {
         return orderRepository.save(order);
+    }
+
+    public Order findById(Long orderId) {
+        return orderRepository.findByIdWithOrderLines(orderId)
+            .orElseThrow(() -> new AipiaDomainException(ORDER_NOT_FOUND, "orderId='%s'".formatted(orderId)));
+    }
+
+    /**
+     * 주문을 조회한다. 관리자는 모든 주문을 조회할 수 있고, 일반 회원은 본인의 주문만 조회할 수 있다
+     */
+    public Order retrieveOrder(Long orderId, Long memberId, MemberGrade grade) {
+        Order order = findById(orderId);
+
+        // 관리자가 아닌 경우, 본인의 주문인지 확인
+        if (!grade.isAdmin() && !order.isOrderedBy(memberId)) {
+            throw new AipiaDomainException(
+                ORDER_ACCESS_FORBIDDEN,
+                "orderId='%s', memberId='%s'".formatted(orderId, memberId)
+            );
+        }
+
+        return order;
     }
 }

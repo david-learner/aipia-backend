@@ -1,12 +1,18 @@
 package com.aipiabackend.order.model;
 
-import static com.aipiabackend.support.model.ErrorCodeMessage.*;
+import static com.aipiabackend.support.model.ErrorCodeMessage.ORDER_CAN_BE_SUCCEEDED_FROM_PENDING;
 
-import com.aipiabackend.support.model.ErrorCodeMessage;
 import com.aipiabackend.support.model.exception.AipiaDomainException;
-import com.aipiabackend.support.model.exception.AipiaException;
-import jakarta.persistence.*;
-import java.math.BigDecimal;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,5 +69,9 @@ public class Order {
 
     public boolean isPending() {
         return this.status == OrderStatus.PENDING;
+    }
+
+    public boolean isOrderedBy(Long memberId) {
+        return this.memberId.equals(memberId);
     }
 }
