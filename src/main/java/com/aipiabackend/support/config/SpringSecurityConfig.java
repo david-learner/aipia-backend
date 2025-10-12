@@ -4,17 +4,13 @@ import static com.aipiabackend.support.model.ErrorCodeMessage.*;
 
 import com.aipiabackend.auth.filter.JwtAuthenticationFilter;
 import com.aipiabackend.support.dto.ErrorResponse;
-import com.aipiabackend.support.model.ErrorCodeMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -34,11 +30,13 @@ public class SpringSecurityConfig {
                 // 애플리케이션 또는 인프라 경로
                 .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/error/**").permitAll()
-                // 서비스를 위한 허용된 경로
+                // 인증되지 않은 사용자에게 허용된 경로
                 .requestMatchers("/api/auth/login").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/members").permitAll()
-                // 회원에게 허용된 경로
+                // 인증된 사용자에게 허용된 경로
                 .requestMatchers(HttpMethod.GET, "/api/members/me").authenticated()
+                .requestMatchers("/api/orders/**").authenticated()
+                .requestMatchers("/api/payments/**").authenticated()
                 // 관리자에게만 허용된 경로
                 .requestMatchers("/api/members/**").hasRole("ADMIN")
                 .requestMatchers("/api/products/**").hasRole("ADMIN")

@@ -17,7 +17,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AipiaDomainException.class)
     public ResponseEntity<ErrorResponse> handleAipiaDomainException(AipiaDomainException exception) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(ErrorResponse.of(exception.getErrorCodeMessage()));
+            .body(ErrorResponse.ofDetail(exception.getErrorCodeMessage(), exception.getDetailMessage()));
     }
 
     @ExceptionHandler(BadCredentialsException.class)

@@ -9,6 +9,19 @@ public class AipiaException extends RuntimeException {
     private final ErrorCodeMessage errorCodeMessage;
     private final String detailMessage;
 
+    // todo: AllArgs 하나만 남겨두고 정적 생성자 메서드로 리팩터링
+    public AipiaException(ErrorCodeMessage errorCodeMessage, String detailMessage, Throwable rootCause) {
+        super(fullMessage(errorCodeMessage, detailMessage), rootCause);
+        this.errorCodeMessage = errorCodeMessage;
+        this.detailMessage = detailMessage;
+    }
+
+    public AipiaException(ErrorCodeMessage errorCodeMessage, Throwable rootCause) {
+        super(fullMessage(errorCodeMessage, null), rootCause);
+        this.errorCodeMessage = errorCodeMessage;
+        this.detailMessage = null;
+    }
+
     public AipiaException(ErrorCodeMessage errorCodeMessage, String detailMessage) {
         super(fullMessage(errorCodeMessage, detailMessage));
         this.errorCodeMessage = errorCodeMessage;

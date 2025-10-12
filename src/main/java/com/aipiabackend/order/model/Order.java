@@ -1,5 +1,10 @@
 package com.aipiabackend.order.model;
 
+import static com.aipiabackend.support.model.ErrorCodeMessage.*;
+
+import com.aipiabackend.support.model.ErrorCodeMessage;
+import com.aipiabackend.support.model.exception.AipiaDomainException;
+import com.aipiabackend.support.model.exception.AipiaException;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -46,5 +51,17 @@ public class Order {
     private void addOrderLine(OrderLine orderLine) {
         this.orderLines.add(orderLine);
         orderLine.setOrder(this);
+    }
+
+    public void completePayment() {
+        if (!isPending()) {
+            throw new AipiaDomainException(ORDER_CAN_BE_SUCCEEDED_FROM_PENDING);
+        }
+
+        this.status = OrderStatus.SUCCEEDED;
+    }
+
+    public boolean isPending() {
+        return this.status == OrderStatus.PENDING;
     }
 }

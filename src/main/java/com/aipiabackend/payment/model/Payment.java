@@ -1,0 +1,79 @@
+package com.aipiabackend.payment.model;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import java.time.LocalDateTime;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Getter
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "payment")
+@Entity
+public class Payment {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "group_id")
+    private Long groupId;
+
+    @Column(name = "order_id", nullable = false)
+    private Long orderId;
+
+    @Column(name = "transaction_id")
+    private String transactionId;
+
+    @Column(nullable = false)
+    private Long amount;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private PaymentStatus status;
+
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "paid_at")
+    private LocalDateTime paidAt;
+
+    @Column(name = "refunded_at")
+    private LocalDateTime refundedAt;
+
+    public static Payment of(Long orderId, Long amount) {
+        return new Payment(
+            null,
+            null,
+            orderId,
+            null,
+            amount,
+            PaymentStatus.PENDING,
+            LocalDateTime.now(),
+            null,
+            null
+        );
+    }
+
+    public void assignTransactionId(String transactionId) {
+        this.transactionId = transactionId;
+    }
+
+    public void complete() {
+        this.status = PaymentStatus.SUCCEEDED;
+        this.paidAt = LocalDateTime.now();
+    }
+
+    public void fail() {
+        this.status = PaymentStatus.FAILED;
+    }
+}

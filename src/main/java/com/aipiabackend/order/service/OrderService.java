@@ -1,6 +1,7 @@
 package com.aipiabackend.order.service;
 
 import static com.aipiabackend.support.model.ErrorCodeMessage.ORDER_LINE_AMOUNT_NOT_MATCHED;
+import static com.aipiabackend.support.model.ErrorCodeMessage.UNKNOWN;
 
 import com.aipiabackend.order.model.Order;
 import com.aipiabackend.order.repository.OrderRepository;
@@ -42,6 +43,16 @@ public class OrderService {
         });
 
         Order order = command.toOrder();
+        return orderRepository.save(order);
+    }
+
+    public Order findById(Long id) {
+        return orderRepository.findById(id)
+            .orElseThrow(() -> new AipiaDomainException(UNKNOWN));
+    }
+
+    @Transactional
+    public Order save(Order order) {
         return orderRepository.save(order);
     }
 }
