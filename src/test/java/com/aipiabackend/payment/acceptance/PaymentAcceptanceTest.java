@@ -26,20 +26,19 @@ public class PaymentAcceptanceTest extends AcceptanceTestBase {
         OrderAndMember 기본_주문_및_기본_회원 = 기본_주문_및_기본_회원_생성(objectMapper, productRepository);
         LoginedMember 기본_회원 = 기본_주문_및_기본_회원.member();
 
-        // 결제
-        String payRequestBody = """
-            {
-                "orderId": 1,
-                "cardNumber": "1234567890123456",
-                "cardExpirationYearAndMonth": "1225",
-                "cardIssuerCode": "01"
-            }
-            """;
+        Long orderId = FixtureUtil.getResourceIdFromLocation(기본_주문_및_기본_회원.orderLocation());
+        var paymentCreateRequest = new PaymentCreateRequest(
+            orderId,
+            "1234567890123456",
+            "1225",
+            "01"
+        );
+        String paymentCreateRequestBody = FixtureUtil.getJsonFrom(objectMapper, paymentCreateRequest);
 
         given()
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + 기본_회원.accessToken())
             .contentType(ContentType.JSON)
-            .body(payRequestBody)
+            .body(paymentCreateRequestBody)
             .when()
             .post("/api/payments")
             .then()
