@@ -93,7 +93,7 @@ public class OrderFixture {
      * @param productRepository 상품 저장소
      * @return OrderAndMember 객체 (생성된 주문과 회원 정보 포함)
      */
-    public static OrderAndMember 기본_주문_생성(
+    public static OrderAndMember 기본_주문_및_기본_회원_생성(
         ObjectMapper objectMapper,
         ProductRepository productRepository
     ) {

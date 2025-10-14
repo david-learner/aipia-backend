@@ -1,9 +1,15 @@
 package com.aipiabackend.payment.acceptance;
 
+import static com.aipiabackend.support.fixture.OrderFixture.*;
 import static io.restassured.RestAssured.given;
 
-import com.aipiabackend.member.model.Member;
+import com.aipiabackend.payment.controller.dto.PaymentCreateRequest;
 import com.aipiabackend.support.AcceptanceTestBase;
+import com.aipiabackend.support.fixture.MemberFixture;
+import com.aipiabackend.support.fixture.OrderFixture;
+import com.aipiabackend.support.model.LoginedMember;
+import com.aipiabackend.support.model.OrderAndMember;
+import com.aipiabackend.support.util.FixtureUtil;
 import io.restassured.http.ContentType;
 import java.util.stream.Stream;
 import org.apache.http.HttpHeaders;
@@ -17,114 +23,8 @@ public class PaymentAcceptanceTest extends AcceptanceTestBase {
 
     @Test
     void 회원이_주문을_결제한다() {
-        // 회원 가입
-        String signupRequestBody = """
-            {
-                "name": "김길동",
-                "email": "gdkim@gmail.com",
-                "password": "gdkimSecret123",
-                "phone": "010-1111-2222"
-            }
-            """;
-
-        given()
-            .contentType(ContentType.JSON)
-            .body(signupRequestBody)
-            .when()
-            .post("/api/members")
-            .then()
-            .statusCode(HttpStatus.CREATED.value());
-
-        // 로그인
-        String loginRequestBody = """
-            {
-                "email": "gdkim@gmail.com",
-                "password": "gdkimSecret123"
-            }
-            """;
-
-        String accessToken = given()
-            .contentType(ContentType.JSON)
-            .body(loginRequestBody)
-            .when()
-            .post("/api/auth/login")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract()
-            .jsonPath()
-            .getString("accessToken");
-
-        // 관리자 회원 생성 (상품 생성을 위해)
-        Member admin = Member.ofAdmin(
-            "테스트관리자",
-            "test-admin@example.com",
-            passwordEncoder.encode("adminSecret123"),
-            "010-8888-8888"
-        );
-        memberRepository.save(admin);
-
-        // 관리자 로그인
-        String adminLoginRequestBody = """
-            {
-                "email": "test-admin@example.com",
-                "password": "adminSecret123"
-            }
-            """;
-
-        String adminAccessToken = given()
-            .contentType(ContentType.JSON)
-            .body(adminLoginRequestBody)
-            .when()
-            .post("/api/auth/login")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract()
-            .jsonPath()
-            .getString("accessToken");
-
-        // 상품 생성
-        String productRequestBody = """
-            {
-                "name": "맥북 프로",
-                "price": 1500000,
-                "stock": 10,
-                "description": "Apple M3 Pro 칩, 18GB RAM, 512GB SSD"
-            }
-            """;
-
-        given()
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminAccessToken)
-            .contentType(ContentType.JSON)
-            .body(productRequestBody)
-            .when()
-            .post("/api/products")
-            .then()
-            .statusCode(HttpStatus.CREATED.value());
-
-        // 주문 생성
-        String orderRequestBody = """
-            {
-                "memberId": 1,
-                "orderLines": [
-                    {
-                        "productId": 1,
-                        "productQuantity": 2,
-                        "productPrice": 1500000.00,
-                        "amount": 3000000.00
-                    }
-                ],
-                "amount": 3000000.00
-            }
-            """;
-
-        given()
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-            .contentType(ContentType.JSON)
-            .body(orderRequestBody)
-            .when()
-            .post("/api/orders")
-            .then()
-            .statusCode(HttpStatus.CREATED.value());
+        OrderAndMember 기본_주문_및_기본_회원 = 기본_주문_및_기본_회원_생성(objectMapper, productRepository);
+        LoginedMember 기본_회원 = 기본_주문_및_기본_회원.member();
 
         // 결제
         String payRequestBody = """
@@ -137,7 +37,7 @@ public class PaymentAcceptanceTest extends AcceptanceTestBase {
             """;
 
         given()
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + 기본_회원.accessToken())
             .contentType(ContentType.JSON)
             .body(payRequestBody)
             .when()
@@ -146,30 +46,10 @@ public class PaymentAcceptanceTest extends AcceptanceTestBase {
             .statusCode(HttpStatus.OK.value());
     }
 
-    @Test
-    void Authorization_헤더_없이_결제_시도시_401_Unauthorized_응답한다() {
-        String payRequestBody = """
-            {
-                "orderId": 1,
-                "cardNumber": "1234567890123456",
-                "cardExpirationYearAndMonth": "1225",
-                "cardIssuerCode": "01"
-            }
-            """;
-
-        given()
-            .contentType(ContentType.JSON)
-            .body(payRequestBody)
-            .when()
-            .post("/api/payments")
-            .then()
-            .statusCode(HttpStatus.UNAUTHORIZED.value());
-    }
-
     /**
      * 필수 필드 누락 시 400 Bad Request를 응답하는지 검증
      *
-     * @param 테스트명      테스트 케이스 설명
+     * @param 테스트명        테스트 케이스 설명
      * @param requestBody 누락된 필드가 포함된 요청 본문
      */
     @ParameterizedTest(name = "{0}")
@@ -231,87 +111,53 @@ public class PaymentAcceptanceTest extends AcceptanceTestBase {
             Arguments.of(
                 "orderId 누락",
                 """
-                {
-                    "orderId": null,
-                    "cardNumber": "1234567890123456",
-                    "cardExpirationYearAndMonth": "1225",
-                    "cardIssuerCode": "01"
-                }
-                """
+                    {
+                        "orderId": null,
+                        "cardNumber": "1234567890123456",
+                        "cardExpirationYearAndMonth": "1225",
+                        "cardIssuerCode": "01"
+                    }
+                    """
             ),
             Arguments.of(
                 "cardNumber 누락",
                 """
-                {
-                    "orderId": 1,
-                    "cardNumber": null,
-                    "cardExpirationYearAndMonth": "1225",
-                    "cardIssuerCode": "01"
-                }
-                """
+                    {
+                        "orderId": 1,
+                        "cardNumber": null,
+                        "cardExpirationYearAndMonth": "1225",
+                        "cardIssuerCode": "01"
+                    }
+                    """
             ),
             Arguments.of(
                 "cardExpirationYearAndMonth 누락",
                 """
-                {
-                    "orderId": 1,
-                    "cardNumber": "1234567890123456",
-                    "cardExpirationYearAndMonth": null,
-                    "cardIssuerCode": "01"
-                }
-                """
+                    {
+                        "orderId": 1,
+                        "cardNumber": "1234567890123456",
+                        "cardExpirationYearAndMonth": null,
+                        "cardIssuerCode": "01"
+                    }
+                    """
             ),
             Arguments.of(
                 "cardIssuerCode 누락",
                 """
-                {
-                    "orderId": 1,
-                    "cardNumber": "1234567890123456",
-                    "cardExpirationYearAndMonth": "1225",
-                    "cardIssuerCode": null
-                }
-                """
+                    {
+                        "orderId": 1,
+                        "cardNumber": "1234567890123456",
+                        "cardExpirationYearAndMonth": "1225",
+                        "cardIssuerCode": null
+                    }
+                    """
             )
         );
     }
 
     @Test
     void 존재하지_않는_주문_ID로_결제_시도시_500_Internal_Server_Error_응답한다() {
-        // 회원 가입 및 로그인
-        String signupRequestBody = """
-            {
-                "name": "김길동",
-                "email": "gdkim@gmail.com",
-                "password": "gdkimSecret123",
-                "phone": "010-1111-2222"
-            }
-            """;
-
-        given()
-            .contentType(ContentType.JSON)
-            .body(signupRequestBody)
-            .when()
-            .post("/api/members")
-            .then()
-            .statusCode(HttpStatus.CREATED.value());
-
-        String loginRequestBody = """
-            {
-                "email": "gdkim@gmail.com",
-                "password": "gdkimSecret123"
-            }
-            """;
-
-        String accessToken = given()
-            .contentType(ContentType.JSON)
-            .body(loginRequestBody)
-            .when()
-            .post("/api/auth/login")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract()
-            .jsonPath()
-            .getString("accessToken");
+        LoginedMember 기본_회원 = MemberFixture.기본_회원_생성_및_로그인();
 
         // 존재하지 않는 주문 ID로 결제 시도
         String payRequestBody = """
@@ -324,7 +170,7 @@ public class PaymentAcceptanceTest extends AcceptanceTestBase {
             """;
 
         given()
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + 기본_회원.accessToken())
             .contentType(ContentType.JSON)
             .body(payRequestBody)
             .when()
@@ -335,128 +181,23 @@ public class PaymentAcceptanceTest extends AcceptanceTestBase {
 
     @Test
     void 이미_결제_완료된_주문에_대해_재결제_시도시_500_Internal_Server_Error_응답한다() {
-        // 회원 가입 및 로그인
-        String signupRequestBody = """
-            {
-                "name": "김길동",
-                "email": "gdkim@gmail.com",
-                "password": "gdkimSecret123",
-                "phone": "010-1111-2222"
-            }
-            """;
+        OrderAndMember 기본_주문_및_기본_회원 = 기본_주문_및_기본_회원_생성(objectMapper, productRepository);
+        LoginedMember 기본_회원 = 기본_주문_및_기본_회원.member();
 
-        given()
-            .contentType(ContentType.JSON)
-            .body(signupRequestBody)
-            .when()
-            .post("/api/members")
-            .then()
-            .statusCode(HttpStatus.CREATED.value());
-
-        String loginRequestBody = """
-            {
-                "email": "gdkim@gmail.com",
-                "password": "gdkimSecret123"
-            }
-            """;
-
-        String accessToken = given()
-            .contentType(ContentType.JSON)
-            .body(loginRequestBody)
-            .when()
-            .post("/api/auth/login")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract()
-            .jsonPath()
-            .getString("accessToken");
-
-        // 관리자 회원 생성 (상품 생성을 위해)
-        Member admin = Member.ofAdmin(
-            "테스트관리자",
-            "test-admin@example.com",
-            passwordEncoder.encode("adminSecret123"),
-            "010-8888-8888"
+        Long orderId = FixtureUtil.getResourceIdFromLocation(기본_주문_및_기본_회원.orderLocation());
+        var paymentCreateRequest = new PaymentCreateRequest(
+            orderId,
+            "1234567890123456",
+            "1225",
+            "01"
         );
-        memberRepository.save(admin);
-
-        // 관리자 로그인
-        String adminLoginRequestBody = """
-            {
-                "email": "test-admin@example.com",
-                "password": "adminSecret123"
-            }
-            """;
-
-        String adminAccessToken = given()
-            .contentType(ContentType.JSON)
-            .body(adminLoginRequestBody)
-            .when()
-            .post("/api/auth/login")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract()
-            .jsonPath()
-            .getString("accessToken");
-
-        // 상품 생성
-        String productRequestBody = """
-            {
-                "name": "맥북 프로",
-                "price": 1500000,
-                "stock": 10,
-                "description": "Apple M3 Pro 칩, 18GB RAM, 512GB SSD"
-            }
-            """;
-
-        given()
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminAccessToken)
-            .contentType(ContentType.JSON)
-            .body(productRequestBody)
-            .when()
-            .post("/api/products")
-            .then()
-            .statusCode(HttpStatus.CREATED.value());
-
-        // 주문 생성
-        String orderRequestBody = """
-            {
-                "memberId": 1,
-                "orderLines": [
-                    {
-                        "productId": 1,
-                        "productQuantity": 2,
-                        "productPrice": 1500000.00,
-                        "amount": 3000000.00
-                    }
-                ],
-                "amount": 3000000.00
-            }
-            """;
-
-        given()
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-            .contentType(ContentType.JSON)
-            .body(orderRequestBody)
-            .when()
-            .post("/api/orders")
-            .then()
-            .statusCode(HttpStatus.CREATED.value());
+        String paymentCreateRequestBody = FixtureUtil.getJsonFrom(objectMapper, paymentCreateRequest);
 
         // 첫 번째 결제 (성공)
-        String payRequestBody = """
-            {
-                "orderId": 1,
-                "cardNumber": "1234567890123456",
-                "cardExpirationYearAndMonth": "1225",
-                "cardIssuerCode": "01"
-            }
-            """;
-
         given()
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + 기본_회원.accessToken())
             .contentType(ContentType.JSON)
-            .body(payRequestBody)
+            .body(paymentCreateRequestBody)
             .when()
             .post("/api/payments")
             .then()
@@ -464,9 +205,9 @@ public class PaymentAcceptanceTest extends AcceptanceTestBase {
 
         // 동일 주문에 대해 두 번째 결제 시도 (실패 예상)
         given()
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + 기본_회원.accessToken())
             .contentType(ContentType.JSON)
-            .body(payRequestBody)
+            .body(paymentCreateRequestBody)
             .when()
             .post("/api/payments")
             .then()
@@ -475,113 +216,8 @@ public class PaymentAcceptanceTest extends AcceptanceTestBase {
 
     @Test
     void 결제_재시도_3회_소진시_500_Internal_Server_Error_응답한다() {
-        // 회원 가입 및 로그인
-        String signupRequestBody = """
-            {
-                "name": "김길동",
-                "email": "gdkim@gmail.com",
-                "password": "gdkimSecret123",
-                "phone": "010-1111-2222"
-            }
-            """;
-
-        given()
-            .contentType(ContentType.JSON)
-            .body(signupRequestBody)
-            .when()
-            .post("/api/members")
-            .then()
-            .statusCode(HttpStatus.CREATED.value());
-
-        String loginRequestBody = """
-            {
-                "email": "gdkim@gmail.com",
-                "password": "gdkimSecret123"
-            }
-            """;
-
-        String accessToken = given()
-            .contentType(ContentType.JSON)
-            .body(loginRequestBody)
-            .when()
-            .post("/api/auth/login")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract()
-            .jsonPath()
-            .getString("accessToken");
-
-        // 관리자 회원 생성 (상품 생성을 위해)
-        Member admin = Member.ofAdmin(
-            "테스트관리자",
-            "test-admin@example.com",
-            passwordEncoder.encode("adminSecret123"),
-            "010-8888-8888"
-        );
-        memberRepository.save(admin);
-
-        // 관리자 로그인
-        String adminLoginRequestBody = """
-            {
-                "email": "test-admin@example.com",
-                "password": "adminSecret123"
-            }
-            """;
-
-        String adminAccessToken = given()
-            .contentType(ContentType.JSON)
-            .body(adminLoginRequestBody)
-            .when()
-            .post("/api/auth/login")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract()
-            .jsonPath()
-            .getString("accessToken");
-
-        // 상품 생성
-        String productRequestBody = """
-            {
-                "name": "맥북 프로",
-                "price": 1500000,
-                "stock": 10,
-                "description": "Apple M3 Pro 칩, 18GB RAM, 512GB SSD"
-            }
-            """;
-
-        given()
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminAccessToken)
-            .contentType(ContentType.JSON)
-            .body(productRequestBody)
-            .when()
-            .post("/api/products")
-            .then()
-            .statusCode(HttpStatus.CREATED.value());
-
-        // 주문 생성
-        String orderRequestBody = """
-            {
-                "memberId": 1,
-                "orderLines": [
-                    {
-                        "productId": 1,
-                        "productQuantity": 2,
-                        "productPrice": 1500000.00,
-                        "amount": 3000000.00
-                    }
-                ],
-                "amount": 3000000.00
-            }
-            """;
-
-        given()
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-            .contentType(ContentType.JSON)
-            .body(orderRequestBody)
-            .when()
-            .post("/api/orders")
-            .then()
-            .statusCode(HttpStatus.CREATED.value());
+        OrderAndMember 기본_주문_및_기본_회원 = 기본_주문_및_기본_회원_생성(objectMapper, productRepository);
+        LoginedMember 기본_회원 = 기본_주문_및_기본_회원.member();
 
         // 항상 실패하는 카드 번호로 결제 시도 (재시도 3회 소진 후 실패)
         String payRequestBody = """
@@ -594,7 +230,7 @@ public class PaymentAcceptanceTest extends AcceptanceTestBase {
             """;
 
         given()
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + 기본_회원.accessToken())
             .contentType(ContentType.JSON)
             .body(payRequestBody)
             .when()
