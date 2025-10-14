@@ -25,7 +25,7 @@ public class DatabaseCleanup {
      * 모든 테이블의 데이터를 삭제합니다.
      */
     public void cleanDatabase() {
-        truncateH2("member", "orders", "order_line", "payment");
+        truncateH2("product", "member", "orders", "order_line", "payment");
     }
 
     public void truncateH2(String... tables) {

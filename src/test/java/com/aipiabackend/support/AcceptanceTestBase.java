@@ -1,6 +1,8 @@
 package com.aipiabackend.support;
 
 import com.aipiabackend.member.repository.MemberRepository;
+import com.aipiabackend.product.repository.ProductRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +32,12 @@ public abstract class AcceptanceTestBase {
 
     @Autowired
     protected PasswordEncoder passwordEncoder;
+
+    @Autowired
+    protected ProductRepository productRepository;
+
+    @Autowired
+    protected ObjectMapper objectMapper;
 
     @Autowired
     private DatabaseCleanup databaseCleanup;

@@ -1,5 +1,6 @@
 package com.aipiabackend.order.controller.dto;
 
+import com.aipiabackend.product.model.Product;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
@@ -17,4 +18,12 @@ public record OrderLineCreateRequest(
     @NotNull(message = "금액은 필수입니다")
     Long amount
 ) {
+    public static OrderLineCreateRequest of(Product product, Integer productQuantity) {
+        return new OrderLineCreateRequest(
+            product.getId(),
+            productQuantity,
+            product.getPrice(),
+            product.getPrice() * productQuantity
+        );
+    }
 }
