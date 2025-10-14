@@ -1,6 +1,6 @@
 package com.aipiabackend.payment.controller;
 
-import com.aipiabackend.payment.controller.dto.PaymentRequest;
+import com.aipiabackend.payment.controller.dto.PaymentCreateRequest;
 import com.aipiabackend.payment.service.PaymentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ public class PaymentRestController {
      * 주문을 결제한다
      */
     @PostMapping
-    public ResponseEntity<Void> pay(@Valid @RequestBody PaymentRequest request) {
+    public ResponseEntity<Void> pay(@Valid @RequestBody PaymentCreateRequest request) {
         paymentService.pay(request.toPayCommand());
         return ResponseEntity.ok().build();
     }

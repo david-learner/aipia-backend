@@ -3,7 +3,7 @@ package com.aipiabackend.payment.controller.dto;
 import com.aipiabackend.payment.service.dto.PaymentCommand;
 import jakarta.validation.constraints.NotNull;
 
-public record PaymentRequest(
+public record PaymentCreateRequest(
     @NotNull(message = "주문 ID는 필수입니다")
     Long orderId,
 
