@@ -1,11 +1,17 @@
 package com.aipiabackend.member.acceptance;
 
+import static com.aipiabackend.support.fixture.MemberFixture.회원_가입;
+import static com.aipiabackend.support.fixture.MemberFixture.회원가입_및_로그인;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.matchesRegex;
 
 import com.aipiabackend.member.model.Member;
+import com.aipiabackend.member.model.MemberGrade;
 import com.aipiabackend.support.AcceptanceTestBase;
+import com.aipiabackend.support.fixture.MemberFixture;
+import com.aipiabackend.support.model.LoginedAdmin;
+import com.aipiabackend.support.model.LoginedMember;
 import io.restassured.http.ContentType;
 import org.apache.http.HttpHeaders;
 import org.junit.jupiter.api.Test;
@@ -248,7 +254,6 @@ public class MemberAcceptanceTest extends AcceptanceTestBase {
             .extract()
             .header(HttpHeaders.LOCATION);
 
-        // Authorization 헤더 없이 회원 정보 조회
         given()
             .when()
             .get(location)
@@ -258,127 +263,26 @@ public class MemberAcceptanceTest extends AcceptanceTestBase {
 
     @Test
     void 본인이_아닌_다른_회원_조회시_403_Forbidden을_응답한다() {
-        // 첫 번째 회원 가입
-        String firstMemberRequestBody = """
-            {
-                "name": "김길동",
-                "email": "gdkim@gmail.com",
-                "password": "gdkimSecret123",
-                "phone": "010-1111-2222"
-            }
-            """;
-
-        String firstMemberLocation = given()
-            .contentType(ContentType.JSON)
-            .body(firstMemberRequestBody)
-            .when()
-            .post("/api/members")
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract()
-            .header(HttpHeaders.LOCATION);
-
-        // 두 번째 회원 가입
-        String secondMemberRequestBody = """
-            {
-                "name": "홍길동",
-                "email": "gdhong@gmail.com",
-                "password": "gdhongSecret123",
-                "phone": "010-3333-4444"
-            }
-            """;
+        String 첫번째_회원_Location = 회원_가입("김길동", "gdkim@gmail.com", "gdkimSecret123", "010-1111-2222");
+        LoginedMember 두번째_회원 = 회원가입_및_로그인("나길동", "gdNa@gmail.com", "gdNaSecret123", "010-2222-3333");
 
         given()
-            .contentType(ContentType.JSON)
-            .body(secondMemberRequestBody)
+            .header("Authorization", "Bearer " + 두번째_회원.accessToken())
             .when()
-            .post("/api/members")
-            .then()
-            .statusCode(HttpStatus.CREATED.value());
-
-        // 두 번째 회원으로 로그인
-        String secondMemberLoginRequestBody = """
-            {
-                "email": "gdhong@gmail.com",
-                "password": "gdhongSecret123"
-            }
-            """;
-
-        String secondMemberAccessToken = given()
-            .contentType(ContentType.JSON)
-            .body(secondMemberLoginRequestBody)
-            .when()
-            .post("/api/auth/login")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract()
-            .jsonPath()
-            .getString("accessToken");
-
-        // 두 번째 회원의 토큰으로 첫 번째 회원 정보 조회 시도
-        given()
-            .header("Authorization", "Bearer " + secondMemberAccessToken)
-            .when()
-            .get(firstMemberLocation)
+            .get(첫번째_회원_Location)
             .then()
             .statusCode(HttpStatus.FORBIDDEN.value());
     }
 
     @Test
     void 관리자는_다른_회원의_정보를_조회할_수_있다() {
-        // 일반 회원 가입
-        String memberRequestBody = """
-            {
-                "name": "김길동",
-                "email": "gdkim@gmail.com",
-                "password": "gdkimSecret123",
-                "phone": "010-1111-2222"
-            }
-            """;
+        String 기본_회원_Location = 회원_가입("김길동", "gdkim@gmail.com", "gdkimSecret123", "010-1111-2222");
+        LoginedAdmin 관리자 = MemberFixture.기본_관리자_생성_및_로그인(memberRepository, passwordEncoder);
 
-        String memberLocation = given()
-            .contentType(ContentType.JSON)
-            .body(memberRequestBody)
-            .when()
-            .post("/api/members")
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract()
-            .header(HttpHeaders.LOCATION);
-
-        // 관리자 회원 직접 생성
-        Member admin = Member.ofAdmin(
-            "관리자",
-            "test-admin@example.com",
-            passwordEncoder.encode("adminSecret123"),
-            "010-9999-9999"
-        );
-        memberRepository.save(admin);
-
-        // 관리자로 로그인
-        String adminLoginRequestBody = """
-            {
-                "email": "test-admin@example.com",
-                "password": "adminSecret123"
-            }
-            """;
-
-        String adminAccessToken = given()
-            .contentType(ContentType.JSON)
-            .body(adminLoginRequestBody)
-            .when()
-            .post("/api/auth/login")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract()
-            .jsonPath()
-            .getString("accessToken");
-
-        // 관리자 토큰으로 일반 회원 정보 조회
         given()
-            .header("Authorization", "Bearer " + adminAccessToken)
+            .header("Authorization", "Bearer " + 관리자.accessToken())
             .when()
-            .get(memberLocation)
+            .get(기본_회원_Location)
             .then()
             .statusCode(HttpStatus.OK.value())
             .body("name", equalTo("김길동"))
@@ -389,64 +293,29 @@ public class MemberAcceptanceTest extends AcceptanceTestBase {
 
     @Test
     void 회원은_me_엔드포인트로_본인의_정보를_조회할_수_있다() {
-        // 회원가입
-        String signupRequestBody = """
-            {
-                "name": "박철수",
-                "email": "cspark@gmail.com",
-                "password": "csparkSecret123",
-                "phone": "010-5555-6666"
-            }
-            """;
+        LoginedMember 기본_회원 = MemberFixture.기본_회원_생성_및_로그인();
 
         given()
-            .contentType(ContentType.JSON)
-            .body(signupRequestBody)
-            .when()
-            .post("/api/members")
-            .then()
-            .statusCode(HttpStatus.CREATED.value());
-
-        // 로그인하여 JWT 토큰 획득
-        String loginRequestBody = """
-            {
-                "email": "cspark@gmail.com",
-                "password": "csparkSecret123"
-            }
-            """;
-
-        String accessToken = given()
-            .contentType(ContentType.JSON)
-            .body(loginRequestBody)
-            .when()
-            .post("/api/auth/login")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract()
-            .jsonPath()
-            .getString("accessToken");
-
-        // /me 엔드포인트로 본인 정보 조회
-        given()
-            .header("Authorization", "Bearer " + accessToken)
+            .header("Authorization", "Bearer " + 기본_회원.accessToken())
             .when()
             .get("/api/members/me")
             .then()
             .statusCode(HttpStatus.OK.value())
-            .body("name", equalTo("박철수"))
-            .body("email", equalTo("cspark@gmail.com"))
-            .body("phone", equalTo("010-5555-6666"))
-            .body("grade", equalTo("MEMBER"))
+            .body("name", equalTo("김길동"))
+            .body("email", equalTo("gdkim@gmail.com"))
+            .body("phone", equalTo("010-1111-2222"))
+            .body("grade", equalTo(MemberGrade.MEMBER.name()))
             .body("joinedAt", matchesRegex("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*$"));
     }
 
     @Test
     void 탈퇴한_회원이_me_엔드포인트로_조회시_403_Forbidden을_응답한다() {
         // 회원 생성 및 탈퇴 처리
+        String password = "yhleeSecret123";
         Member member = Member.ofMember(
             "이영희",
             "yhlee@gmail.com",
-            passwordEncoder.encode("yhleeSecret123"),
+            passwordEncoder.encode(password),
             "010-7777-8888"
         );
         member.withdraw();
