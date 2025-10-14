@@ -3,7 +3,12 @@ package com.aipiabackend.product.acceptance;
 import static io.restassured.RestAssured.given;
 
 import com.aipiabackend.member.model.Member;
+import com.aipiabackend.product.controller.dto.ProductCreateRequest;
 import com.aipiabackend.support.AcceptanceTestBase;
+import com.aipiabackend.support.fixture.MemberFixture;
+import com.aipiabackend.support.model.LoginedAdmin;
+import com.aipiabackend.support.model.LoginedMember;
+import com.aipiabackend.support.util.FixtureUtil;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -14,48 +19,19 @@ public class ProductAcceptanceTest extends AcceptanceTestBase {
 
     @Test
     void 관리자가_유효한_상품_정보로_상품을_생성한다() {
-        // 관리자 회원 생성
-        Member admin = Member.ofAdmin(
-            "테스트관리자",
-            "test-admin@example.com",
-            passwordEncoder.encode("adminSecret123"),
-            "010-8888-8888"
+        LoginedAdmin 기본_관리자 = MemberFixture.기본_관리자_생성_및_로그인(memberRepository, passwordEncoder);
+        ProductCreateRequest productCreateRequest = new ProductCreateRequest(
+            "맥북 프로",
+            2500000L,
+            10,
+            "Apple M3 Pro 칩, 18GB RAM, 512GB SSD"
         );
-        memberRepository.save(admin);
-
-        // 관리자로 로그인
-        String adminLoginRequestBody = """
-            {
-                "email": "test-admin@example.com",
-                "password": "adminSecret123"
-            }
-            """;
-
-        String adminAccessToken = given()
-            .contentType(ContentType.JSON)
-            .body(adminLoginRequestBody)
-            .when()
-            .post("/api/auth/login")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract()
-            .jsonPath()
-            .getString("accessToken");
-
-        // 상품 생성
-        String productRequestBody = """
-            {
-                "name": "맥북 프로",
-                "price": 2500000,
-                "stock": 10,
-                "description": "Apple M3 Pro 칩, 18GB RAM, 512GB SSD"
-            }
-            """;
+        String productCreateRequestBody = FixtureUtil.getJsonFrom(objectMapper, productCreateRequest);
 
         given()
-            .header("Authorization", "Bearer " + adminAccessToken)
+            .header("Authorization", "Bearer " + 기본_관리자.accessToken())
             .contentType(ContentType.JSON)
-            .body(productRequestBody)
+            .body(productCreateRequestBody)
             .when()
             .post("/api/products")
             .then()
@@ -64,57 +40,19 @@ public class ProductAcceptanceTest extends AcceptanceTestBase {
 
     @Test
     void 일반_회원이_상품_생성을_시도하면_403_Forbidden을_응답한다() {
-        // 일반 회원 가입
-        String memberRequestBody = """
-            {
-                "name": "김길동",
-                "email": "gdkim@gmail.com",
-                "password": "gdkimSecret123",
-                "phone": "010-1111-2222"
-            }
-            """;
+        LoginedMember 기본_회원 = MemberFixture.기본_회원_생성_및_로그인();
+        ProductCreateRequest productCreateRequest = new ProductCreateRequest(
+            "맥북 프로",
+            2500000L,
+            10,
+            "Apple M3 Pro 칩, 18GB RAM, 512GB SSD"
+        );
+        String productCreateRequestBody = FixtureUtil.getJsonFrom(objectMapper, productCreateRequest);
 
         given()
+            .header("Authorization", "Bearer " + 기본_회원.accessToken())
             .contentType(ContentType.JSON)
-            .body(memberRequestBody)
-            .when()
-            .post("/api/members")
-            .then()
-            .statusCode(HttpStatus.CREATED.value());
-
-        // 일반 회원으로 로그인
-        String memberLoginRequestBody = """
-            {
-                "email": "gdkim@gmail.com",
-                "password": "gdkimSecret123"
-            }
-            """;
-
-        String memberAccessToken = given()
-            .contentType(ContentType.JSON)
-            .body(memberLoginRequestBody)
-            .when()
-            .post("/api/auth/login")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract()
-            .jsonPath()
-            .getString("accessToken");
-
-        // 상품 생성 시도
-        String productRequestBody = """
-            {
-                "name": "맥북 프로",
-                "price": 2500000,
-                "stock": 10,
-                "description": "Apple M3 Pro 칩, 18GB RAM, 512GB SSD"
-            }
-            """;
-
-        given()
-            .header("Authorization", "Bearer " + memberAccessToken)
-            .contentType(ContentType.JSON)
-            .body(productRequestBody)
+            .body(productCreateRequestBody)
             .when()
             .post("/api/products")
             .then()
@@ -123,18 +61,18 @@ public class ProductAcceptanceTest extends AcceptanceTestBase {
 
     @Test
     void Authorization_헤더_없이_상품_생성_시_401_Unauthorized를_응답한다() {
-        String productRequestBody = """
-            {
-                "name": "맥북 프로",
-                "price": 2500000,
-                "stock": 10,
-                "description": "Apple M3 Pro 칩, 18GB RAM, 512GB SSD"
-            }
-            """;
+        LoginedMember 기본_회원 = MemberFixture.기본_회원_생성_및_로그인();
+        ProductCreateRequest productCreateRequest = new ProductCreateRequest(
+            "맥북 프로",
+            2500000L,
+            10,
+            "Apple M3 Pro 칩, 18GB RAM, 512GB SSD"
+        );
+        String productCreateRequestBody = FixtureUtil.getJsonFrom(objectMapper, productCreateRequest);
 
         given()
             .contentType(ContentType.JSON)
-            .body(productRequestBody)
+            .body(productCreateRequestBody)
             .when()
             .post("/api/products")
             .then()
