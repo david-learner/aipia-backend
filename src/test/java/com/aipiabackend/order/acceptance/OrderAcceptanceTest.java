@@ -21,8 +21,12 @@ import com.aipiabackend.support.model.LoginedMember;
 import com.aipiabackend.support.util.FixtureUtil;
 import io.restassured.http.ContentType;
 import java.util.List;
+import java.util.stream.Stream;
 import org.apache.http.HttpHeaders;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.http.HttpStatus;
 
 public class OrderAcceptanceTest extends AcceptanceTestBase {
@@ -52,87 +56,79 @@ public class OrderAcceptanceTest extends AcceptanceTestBase {
             .header(HttpHeaders.LOCATION, matchesRegex("^/api/orders/\\d+$"));
     }
 
-    @Test
-    void 필수_필드_memberId_누락시_400_Bad_Request_응답한다() {
+    /**
+     * 필수 필드 누락 시 400 Bad Request를 응답하는지 검증
+     *
+     * @param 테스트명      테스트 케이스 설명
+     * @param requestBody 누락된 필드가 포함된 요청 본문
+     */
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("필수_필드_누락_케이스")
+    void 필수_필드_누락시_400_Bad_Request_응답한다(String 테스트명, String requestBody) {
         LoginedMember 기본회원 = 기본_회원_생성_및_로그인();
-
-        // memberId 필드를 null로 설정
-        String orderRequestBody = """
-            {
-                "memberId": null,
-                "orderLines": [
-                    {
-                        "productId": 1,
-                        "productQuantity": 2,
-                        "productPrice": 1500000,
-                        "amount": 3000000
-                    }
-                ],
-                "amount": 3000000
-            }
-            """;
 
         given()
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + 기본회원.accessToken())
             .contentType(ContentType.JSON)
-            .body(orderRequestBody)
+            .body(requestBody)
             .when()
             .post("/api/orders")
             .then()
             .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
-    @Test
-    void 필수_필드_orderLines_누락시_400_Bad_Request_응답한다() {
-        LoginedMember 기본회원 = 기본_회원_생성_및_로그인();
-
-        // orderLines 필드를 빈 배열로 설정
-        String orderRequestBody = """
-            {
-                "memberId": 1,
-                "orderLines": [],
-                "amount": 3000000
-            }
-            """;
-
-        given()
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + 기본회원.accessToken())
-            .contentType(ContentType.JSON)
-            .body(orderRequestBody)
-            .when()
-            .post("/api/orders")
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value());
-    }
-
-    @Test
-    void 필수_필드_amount_누락시_400_Bad_Request_응답한다() {
-        LoginedMember 기본회원 = 기본_회원_생성_및_로그인();
-
-        // amount 필드를 null로 설정
-        String orderRequestBody = """
-            {
-                "memberId": 1,
-                "orderLines": [
-                    {
-                        "productId": 1,
-                        "productQuantity": 2,
-                        "productPrice": 1500000,
-                        "amount": 3000000
-                    }
-                ],
-                "amount": null
-            }
-            """;
-
-        given()
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + 기본회원.accessToken())
-            .contentType(ContentType.JSON)
-            .body(orderRequestBody)
-            .when()
-            .post("/api/orders")
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value());
+    /**
+     * 필수 필드 누락 테스트 케이스 제공
+     *
+     * @return 테스트 케이스별 테스트명과 요청 본문
+     */
+    private static Stream<Arguments> 필수_필드_누락_케이스() {
+        return Stream.of(
+            Arguments.of(
+                "memberId 누락",
+                """
+                {
+                    "memberId": null,
+                    "orderLines": [
+                        {
+                            "productId": 1,
+                            "productQuantity": 2,
+                            "productPrice": 1500000,
+                            "amount": 3000000
+                        }
+                    ],
+                    "amount": 3000000
+                }
+                """
+            ),
+            Arguments.of(
+                "orderLines 누락",
+                """
+                {
+                    "memberId": 1,
+                    "orderLines": [],
+                    "amount": 3000000
+                }
+                """
+            ),
+            Arguments.of(
+                "amount 누락",
+                """
+                {
+                    "memberId": 1,
+                    "orderLines": [
+                        {
+                            "productId": 1,
+                            "productQuantity": 2,
+                            "productPrice": 1500000,
+                            "amount": 3000000
+                        }
+                    ],
+                    "amount": null
+                }
+                """
+            )
+        );
     }
 
     @Test
