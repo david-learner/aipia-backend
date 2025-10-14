@@ -5,8 +5,12 @@ import static io.restassured.RestAssured.given;
 import com.aipiabackend.member.model.Member;
 import com.aipiabackend.support.AcceptanceTestBase;
 import io.restassured.http.ContentType;
+import java.util.stream.Stream;
 import org.apache.http.HttpHeaders;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.http.HttpStatus;
 
 public class PaymentAcceptanceTest extends AcceptanceTestBase {
@@ -162,8 +166,15 @@ public class PaymentAcceptanceTest extends AcceptanceTestBase {
             .statusCode(HttpStatus.UNAUTHORIZED.value());
     }
 
-    @Test
-    void 필수_필드_orderId_누락시_400_Bad_Request_응답한다() {
+    /**
+     * 필수 필드 누락 시 400 Bad Request를 응답하는지 검증
+     *
+     * @param 테스트명      테스트 케이스 설명
+     * @param requestBody 누락된 필드가 포함된 요청 본문
+     */
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("필수_필드_누락_케이스")
+    void 필수_필드_누락시_400_Bad_Request_응답한다(String 테스트명, String requestBody) {
         // 회원 가입 및 로그인
         String signupRequestBody = """
             {
@@ -200,198 +211,68 @@ public class PaymentAcceptanceTest extends AcceptanceTestBase {
             .jsonPath()
             .getString("accessToken");
 
-        // orderId 필드를 null로 설정
-        String payRequestBody = """
-            {
-                "orderId": null,
-                "cardNumber": "1234567890123456",
-                "cardExpirationYearAndMonth": "1225",
-                "cardIssuerCode": "01"
-            }
-            """;
-
         given()
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
             .contentType(ContentType.JSON)
-            .body(payRequestBody)
+            .body(requestBody)
             .when()
             .post("/api/payments")
             .then()
             .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
-    @Test
-    void 필수_필드_cardNumber_누락시_400_Bad_Request_응답한다() {
-        // 회원 가입 및 로그인
-        String signupRequestBody = """
-            {
-                "name": "김길동",
-                "email": "gdkim@gmail.com",
-                "password": "gdkimSecret123",
-                "phone": "010-1111-2222"
-            }
-            """;
-
-        given()
-            .contentType(ContentType.JSON)
-            .body(signupRequestBody)
-            .when()
-            .post("/api/members")
-            .then()
-            .statusCode(HttpStatus.CREATED.value());
-
-        String loginRequestBody = """
-            {
-                "email": "gdkim@gmail.com",
-                "password": "gdkimSecret123"
-            }
-            """;
-
-        String accessToken = given()
-            .contentType(ContentType.JSON)
-            .body(loginRequestBody)
-            .when()
-            .post("/api/auth/login")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract()
-            .jsonPath()
-            .getString("accessToken");
-
-        // cardNumber 필드를 null로 설정
-        String payRequestBody = """
-            {
-                "orderId": 1,
-                "cardNumber": null,
-                "cardExpirationYearAndMonth": "1225",
-                "cardIssuerCode": "01"
-            }
-            """;
-
-        given()
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-            .contentType(ContentType.JSON)
-            .body(payRequestBody)
-            .when()
-            .post("/api/payments")
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value());
-    }
-
-    @Test
-    void 필수_필드_cardExpirationYearAndMonth_누락시_400_Bad_Request_응답한다() {
-        // 회원 가입 및 로그인
-        String signupRequestBody = """
-            {
-                "name": "김길동",
-                "email": "gdkim@gmail.com",
-                "password": "gdkimSecret123",
-                "phone": "010-1111-2222"
-            }
-            """;
-
-        given()
-            .contentType(ContentType.JSON)
-            .body(signupRequestBody)
-            .when()
-            .post("/api/members")
-            .then()
-            .statusCode(HttpStatus.CREATED.value());
-
-        String loginRequestBody = """
-            {
-                "email": "gdkim@gmail.com",
-                "password": "gdkimSecret123"
-            }
-            """;
-
-        String accessToken = given()
-            .contentType(ContentType.JSON)
-            .body(loginRequestBody)
-            .when()
-            .post("/api/auth/login")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract()
-            .jsonPath()
-            .getString("accessToken");
-
-        // cardExpirationYearAndMonth 필드를 null로 설정
-        String payRequestBody = """
-            {
-                "orderId": 1,
-                "cardNumber": "1234567890123456",
-                "cardExpirationYearAndMonth": null,
-                "cardIssuerCode": "01"
-            }
-            """;
-
-        given()
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-            .contentType(ContentType.JSON)
-            .body(payRequestBody)
-            .when()
-            .post("/api/payments")
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value());
-    }
-
-    @Test
-    void 필수_필드_cardIssuerCode_누락시_400_Bad_Request_응답한다() {
-        // 회원 가입 및 로그인
-        String signupRequestBody = """
-            {
-                "name": "김길동",
-                "email": "gdkim@gmail.com",
-                "password": "gdkimSecret123",
-                "phone": "010-1111-2222"
-            }
-            """;
-
-        given()
-            .contentType(ContentType.JSON)
-            .body(signupRequestBody)
-            .when()
-            .post("/api/members")
-            .then()
-            .statusCode(HttpStatus.CREATED.value());
-
-        String loginRequestBody = """
-            {
-                "email": "gdkim@gmail.com",
-                "password": "gdkimSecret123"
-            }
-            """;
-
-        String accessToken = given()
-            .contentType(ContentType.JSON)
-            .body(loginRequestBody)
-            .when()
-            .post("/api/auth/login")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract()
-            .jsonPath()
-            .getString("accessToken");
-
-        // cardIssuerCode 필드를 null로 설정
-        String payRequestBody = """
-            {
-                "orderId": 1,
-                "cardNumber": "1234567890123456",
-                "cardExpirationYearAndMonth": "1225",
-                "cardIssuerCode": null
-            }
-            """;
-
-        given()
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-            .contentType(ContentType.JSON)
-            .body(payRequestBody)
-            .when()
-            .post("/api/payments")
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value());
+    /**
+     * 필수 필드 누락 테스트 케이스 제공
+     *
+     * @return 테스트 케이스별 테스트명과 요청 본문
+     */
+    private static Stream<Arguments> 필수_필드_누락_케이스() {
+        return Stream.of(
+            Arguments.of(
+                "orderId 누락",
+                """
+                {
+                    "orderId": null,
+                    "cardNumber": "1234567890123456",
+                    "cardExpirationYearAndMonth": "1225",
+                    "cardIssuerCode": "01"
+                }
+                """
+            ),
+            Arguments.of(
+                "cardNumber 누락",
+                """
+                {
+                    "orderId": 1,
+                    "cardNumber": null,
+                    "cardExpirationYearAndMonth": "1225",
+                    "cardIssuerCode": "01"
+                }
+                """
+            ),
+            Arguments.of(
+                "cardExpirationYearAndMonth 누락",
+                """
+                {
+                    "orderId": 1,
+                    "cardNumber": "1234567890123456",
+                    "cardExpirationYearAndMonth": null,
+                    "cardIssuerCode": "01"
+                }
+                """
+            ),
+            Arguments.of(
+                "cardIssuerCode 누락",
+                """
+                {
+                    "orderId": 1,
+                    "cardNumber": "1234567890123456",
+                    "cardExpirationYearAndMonth": "1225",
+                    "cardIssuerCode": null
+                }
+                """
+            )
+        );
     }
 
     @Test
