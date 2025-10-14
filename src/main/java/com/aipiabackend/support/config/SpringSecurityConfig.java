@@ -25,11 +25,12 @@ public class SpringSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(authz -> authz
                 // 애플리케이션 또는 인프라 경로
                 .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/error/**").permitAll()
+                .requestMatchers("/swagger-ui/**").permitAll()
+                .requestMatchers("/v3/api-docs/**").permitAll()
                 // 인증되지 않은 사용자에게 허용된 경로
                 .requestMatchers("/api/auth/login").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/members").permitAll()
@@ -58,8 +59,7 @@ public class SpringSecurityConfig {
                     response.getWriter().write(objectMapper.writeValueAsString(ErrorResponse.of(ACCESS_DENIED)));
                 })
             )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-            .headers(headers -> headers.frameOptions().disable());
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
