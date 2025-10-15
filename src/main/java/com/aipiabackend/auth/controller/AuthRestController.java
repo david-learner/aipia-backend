@@ -3,6 +3,7 @@ package com.aipiabackend.auth.controller;
 import com.aipiabackend.auth.controller.dto.LoginRequest;
 import com.aipiabackend.auth.controller.dto.LoginResponse;
 import com.aipiabackend.auth.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ public class AuthRestController {
 
     private final AuthService authService;
 
+    @Operation(summary = "로그인", description = "로그인")
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         String accessToken = authService.login(request.email(), request.password());

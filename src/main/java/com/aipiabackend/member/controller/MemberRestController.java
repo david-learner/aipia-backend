@@ -6,6 +6,7 @@ import com.aipiabackend.member.controller.dto.MemberResponse;
 import com.aipiabackend.member.model.Member;
 import com.aipiabackend.member.service.MemberService;
 import com.aipiabackend.member.service.dto.MemberJoinCommand;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -26,9 +27,7 @@ public class MemberRestController {
 
     private final MemberService memberService;
 
-    /**
-     * 회원으로 가입한다
-     */
+    @Operation(summary = "회원가입", description = "회원으로 가입한다.")
     @PostMapping
     public ResponseEntity<Void> join(@Valid @RequestBody MemberJoinRequest request) {
         MemberJoinCommand command = new MemberJoinCommand(
@@ -47,9 +46,7 @@ public class MemberRestController {
         return ResponseEntity.created(memberUriComponents.toUri()).build();
     }
 
-    /**
-     * 회원 본인의 정보를 조회한다
-     */
+    @Operation(summary = "본인 회원정보 조회", description = "본인의 회원정보를 조회한다")
     @GetMapping("/me")
     public ResponseEntity<MemberResponse> retrieveMe(
         @AuthenticationPrincipal MemberPrincipal principal
@@ -58,9 +55,7 @@ public class MemberRestController {
         return ResponseEntity.ok(MemberResponse.from(member));
     }
 
-    /**
-     * 회원 정보를 조회한다
-     */
+    @Operation(summary = "회원정보 조회", description = "관리자용 API. 회원정보를 조회한다.")
     @GetMapping("/{memberId}")
     public ResponseEntity<MemberResponse> retrieve(
         @PathVariable Long memberId

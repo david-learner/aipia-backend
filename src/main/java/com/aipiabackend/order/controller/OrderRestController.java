@@ -5,6 +5,7 @@ import com.aipiabackend.order.controller.dto.OrderCreateRequest;
 import com.aipiabackend.order.controller.dto.OrderResponse;
 import com.aipiabackend.order.model.Order;
 import com.aipiabackend.order.service.OrderService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,9 +26,7 @@ public class OrderRestController {
 
     private final OrderService orderService;
 
-    /**
-     * 주문을 생성한다
-     */
+    @Operation(summary = "주문 생성", description = "주문을 생성한다")
     @PostMapping
     public ResponseEntity<Void> createOrder(@Valid @RequestBody OrderCreateRequest request) {
         Order savedOrder = orderService.create(request.toOrderCreateCommand());
@@ -39,9 +38,7 @@ public class OrderRestController {
         return ResponseEntity.created(orderUriComponents.toUri()).build();
     }
 
-    /**
-     * 주문을 조회한다
-     */
+    @Operation(summary = "주문 조회", description = "주문을 조회한다")
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderResponse> retrieveOrder(
         @PathVariable Long orderId,

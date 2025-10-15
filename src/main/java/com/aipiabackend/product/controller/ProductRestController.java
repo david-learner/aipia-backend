@@ -4,6 +4,7 @@ import com.aipiabackend.product.controller.dto.ProductCreateRequest;
 import com.aipiabackend.product.model.Product;
 import com.aipiabackend.product.service.ProductService;
 import com.aipiabackend.product.service.dto.ProductCreateCommand;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,9 +22,7 @@ public class ProductRestController {
 
     private final ProductService productService;
 
-    /**
-     * 상품을 생성한다 (관리자 전용)
-     */
+    @Operation(summary = "상품 생성", description = "관리자용 API. 상품을 생성한다.")
     @PostMapping
     public ResponseEntity<Void> createProduct(@Valid @RequestBody ProductCreateRequest request) {
         ProductCreateCommand command = new ProductCreateCommand(

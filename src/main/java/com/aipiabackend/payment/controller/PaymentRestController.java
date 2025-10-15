@@ -2,6 +2,7 @@ package com.aipiabackend.payment.controller;
 
 import com.aipiabackend.payment.controller.dto.PaymentCreateRequest;
 import com.aipiabackend.payment.service.PaymentService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,9 +18,7 @@ public class PaymentRestController {
 
     private final PaymentService paymentService;
 
-    /**
-     * 주문을 결제한다
-     */
+    @Operation(summary = "주문 결제", description = "주문을 결제한다")
     @PostMapping
     public ResponseEntity<Void> pay(@Valid @RequestBody PaymentCreateRequest request) {
         paymentService.pay(request.toPayCommand());
