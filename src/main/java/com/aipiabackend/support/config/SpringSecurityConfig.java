@@ -6,14 +6,20 @@ import com.aipiabackend.auth.filter.JwtAuthenticationFilter;
 import com.aipiabackend.support.dto.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 
+@Slf4j
 @RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
@@ -25,6 +31,22 @@ public class SpringSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+            // 임시 보안 토큰 비활성화
+            .csrf(AbstractHttpConfigurer::disable)
+
+            // 서버에서 세션을 생성하지 않는다
+            .sessionManagement(
+                sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            // security form login 비활성화
+            .formLogin(AbstractHttpConfigurer::disable)
+
+            // security가 등록하는 HTTP Basic 인증 필터 비활성화
+            .httpBasic(AbstractHttpConfigurer::disable)
+
+            // logout 처리시 no_content로 응답하도록 설정
+            .logout(configurer ->
+                configurer.logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT)))
+
             .authorizeHttpRequests(authz -> authz
                 // 애플리케이션 또는 인프라 경로
                 .requestMatchers("/h2-console/**").permitAll()
