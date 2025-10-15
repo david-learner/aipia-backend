@@ -7,6 +7,7 @@ import com.aipiabackend.member.model.Member;
 import com.aipiabackend.member.service.MemberService;
 import com.aipiabackend.member.service.dto.MemberJoinCommand;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,7 @@ public class MemberRestController {
 
     private final MemberService memberService;
 
+    @SecurityRequirements
     @Operation(summary = "회원가입", description = "회원으로 가입한다.")
     @PostMapping
     public ResponseEntity<Void> join(@Valid @RequestBody MemberJoinRequest request) {
