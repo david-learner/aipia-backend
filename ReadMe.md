@@ -25,6 +25,13 @@
 - `./gradlew bootRun` 명령어로 애플리케이션 실행
 - `./gradlew test` 명령어로 테스트 코드 실행
 - Swagger API 명세서 접속 경로: http://localhost:8080/swagger-ui/index.html
+  - 테스트 가능한 로그인 데이터
+    - 일반 회원
+      - 이메일: mspark@example.com
+      - 비밀번호: password123
+    - 관리자 회원
+      - 이메일: admin@example.com
+      - 비밀번호: adminPassword123
 
 ## 프로젝트 아키텍처
 
