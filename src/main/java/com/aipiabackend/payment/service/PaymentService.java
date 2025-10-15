@@ -60,6 +60,8 @@ public class PaymentService {
             }
         } catch (Exception exception) {
             // 결제 실패에 대한 후처리
+            order.failPayment();
+            orderService.save(order);
             paymentRecordService.failPayment(payment.getId());
             throw exception;
         }

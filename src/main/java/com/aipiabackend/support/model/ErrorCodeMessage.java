@@ -17,6 +17,7 @@ public enum ErrorCodeMessage {
     PAYMENT_SERVICE_PROVIDER_IS_NOT_WORKING("AIPIA-0012", "결제 서비스 제공자가 동작하지 않습니다."),
     FAILED_TO_PAY("AIPIA-0013", "결제에 실패하였습니다."),
     ORDER_CAN_BE_SUCCEEDED_FROM_PENDING("AIPIA-0014", "주문 대기 상태에서만 주문 성공으로 변경될 수 있습니다."),
+    ORDER_CAN_BE_FAILED_FROM_PENDING("AIPIA-0014", "주문 대기 상태에서만 주문 실패으로 변경될 수 있습니다."),
     PAYMENT_NOT_FOUND("AIPIA-0015", "결제 정보를 찾을 수 없습니다."),
     ORDER_NOT_FOUND("AIPIA-0016", "주문을 찾을 수 없습니다."),
     ORDER_ACCESS_FORBIDDEN("AIPIA-0017", "해당 주문에 접근할 권한이 없습니다."),

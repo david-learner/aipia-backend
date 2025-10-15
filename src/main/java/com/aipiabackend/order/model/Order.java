@@ -1,5 +1,6 @@
 package com.aipiabackend.order.model;
 
+import static com.aipiabackend.support.model.ErrorCodeMessage.ORDER_CAN_BE_FAILED_FROM_PENDING;
 import static com.aipiabackend.support.model.ErrorCodeMessage.ORDER_CAN_BE_SUCCEEDED_FROM_PENDING;
 
 import com.aipiabackend.member.model.Member;
@@ -70,6 +71,14 @@ public class Order {
         }
 
         this.status = OrderStatus.SUCCEEDED;
+    }
+
+    public void failPayment() {
+        if (!isPending()) {
+            throw new AipiaDomainException(ORDER_CAN_BE_FAILED_FROM_PENDING);
+        }
+
+        this.status = OrderStatus.FAILED;
     }
 
     public boolean isPending() {
