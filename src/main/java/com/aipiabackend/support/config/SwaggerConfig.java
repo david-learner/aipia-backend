@@ -14,7 +14,18 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 @OpenAPIDefinition(
-    info = @Info(title = "AIPIA 백엔드 API 명세", version = "v1")
+    info = @Info(
+        title = "AIPIA 백엔드 API 명세",
+        version = "v1",
+        description = """
+                - 테스트 가능한 로그인 데이터
+                    - 일반 회원
+                      - 이메일: mspark@example.com
+                      - 비밀번호: password123
+                    - 관리자 회원
+                      - 이메일: admin@example.com
+                      - 비밀번호: adminPassword123
+            """)
 )
 @Configuration
 @SecurityScheme(
