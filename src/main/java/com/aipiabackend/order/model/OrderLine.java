@@ -29,6 +29,7 @@ public class OrderLine {
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
+    // OrderLine의 경우 주문 시점의 상품에 대한 스냅샷이기 때문에 간접참조를 유지한다
     @Column(name = "product_id", nullable = false)
     private Long productId;
 
