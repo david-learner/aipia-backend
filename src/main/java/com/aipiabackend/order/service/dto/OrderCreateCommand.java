@@ -1,5 +1,6 @@
 package com.aipiabackend.order.service.dto;
 
+import com.aipiabackend.member.model.Member;
 import com.aipiabackend.order.model.Order;
 import com.aipiabackend.order.model.OrderLine;
 import java.util.List;
@@ -17,7 +18,7 @@ public record OrderCreateCommand(
             orderLine.amount())).toList();
     }
 
-    public Order toOrder() {
-        return Order.of(memberId, toOrderLines(), amount);
+    public Order toOrder(Member member) {
+        return Order.of(member, toOrderLines(), amount);
     }
 }

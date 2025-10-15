@@ -16,9 +16,9 @@ import org.apache.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 
 /**
- * 테스트용 주문(Order) 픽스처를 생성하는 헬퍼 클래스
+ * 인수 테스트용 주문(Order) 픽스처를 생성하는 헬퍼 클래스
  */
-public class OrderFixture {
+public class AcceptanceOrderFixture {
 
     /**
      * 단일 상품에 대한 주문을 생성합니다.
@@ -97,8 +97,8 @@ public class OrderFixture {
         ObjectMapper objectMapper,
         ProductRepository productRepository
     ) {
-        Product product = ProductFixture.노트북_생성(productRepository);
-        LoginedMember loginedMember = MemberFixture.기본_회원_생성_및_로그인();
+        Product product = AcceptanceProductFixture.노트북_생성(productRepository);
+        LoginedMember loginedMember = AcceptanceMemberFixture.기본_회원_생성_및_로그인();
 
         String orderLocation = 주문_생성(
             objectMapper,

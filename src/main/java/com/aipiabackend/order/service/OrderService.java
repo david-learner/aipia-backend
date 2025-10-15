@@ -4,7 +4,9 @@ import static com.aipiabackend.support.model.ErrorCodeMessage.ORDER_ACCESS_FORBI
 import static com.aipiabackend.support.model.ErrorCodeMessage.ORDER_LINE_AMOUNT_NOT_MATCHED;
 import static com.aipiabackend.support.model.ErrorCodeMessage.ORDER_NOT_FOUND;
 
+import com.aipiabackend.member.model.Member;
 import com.aipiabackend.member.model.MemberGrade;
+import com.aipiabackend.member.service.MemberService;
 import com.aipiabackend.order.model.Order;
 import com.aipiabackend.order.repository.OrderRepository;
 import com.aipiabackend.order.service.dto.OrderCreateCommand;
@@ -23,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final MemberService memberService;
     private final ProductService productService;
 
     @Transactional
@@ -44,7 +47,8 @@ public class OrderService {
             productService.save(product);
         });
 
-        Order order = command.toOrder();
+        Member member = memberService.findById(command.memberId());
+        Order order = command.toOrder(member);
         return orderRepository.save(order);
     }
 

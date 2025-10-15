@@ -13,12 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
- * 테스트용 회원(Member) 픽스처를 생성하는 헬퍼 클래스
- *
- * <p>회원가입 및 로그인 API 호출을 캡슐화하여 테스트 코드의 중복을 제거하고 가독성을 향상시킵니다.
- * 액세스 토큰, 회원 ID 등 테스트에 필요한 정보를 간편하게 얻을 수 있습니다.</p>
+ * 인수 테스트용 회원(Member) 픽스처를 생성하는 헬퍼 클래스
  */
-public class MemberFixture {
+public class AcceptanceMemberFixture {
 
     /**
      * 회원 가입 및 로그인을 수행하고 액세스 토큰을 반환합니다.

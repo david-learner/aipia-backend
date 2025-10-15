@@ -6,9 +6,9 @@ import java.util.List;
 import org.assertj.core.util.Lists;
 
 /**
- * 테스트용 상품(Product) 픽스처를 생성하는 헬퍼 클래스
+ * 인수 테스트용 상품(Product) 픽스처를 생성하는 헬퍼 클래스
  */
-public class ProductFixture {
+public class AcceptanceProductFixture {
 
     /**
      * 노트북 상품을 생성하고 저장한다

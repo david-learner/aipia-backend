@@ -19,7 +19,7 @@ public record OrderResponse(
     public static OrderResponse from(Order order) {
         return new OrderResponse(
             order.getId(),
-            order.getMemberId(),
+            order.getMember().getId(),
             order.getStatus(),
             order.getOrderLines().stream()
                 .map(OrderLineResponse::from)

@@ -1,11 +1,11 @@
 package com.aipiabackend.order.acceptance;
 
-import static com.aipiabackend.support.fixture.MemberFixture.기본_관리자_생성_및_로그인;
-import static com.aipiabackend.support.fixture.MemberFixture.기본_회원_생성_및_로그인;
-import static com.aipiabackend.support.fixture.MemberFixture.회원가입_및_로그인;
-import static com.aipiabackend.support.fixture.OrderFixture.주문_생성;
-import static com.aipiabackend.support.fixture.ProductFixture.노트북_생성;
-import static com.aipiabackend.support.fixture.ProductFixture.마우스_생성;
+import static com.aipiabackend.support.fixture.AcceptanceMemberFixture.기본_관리자_생성_및_로그인;
+import static com.aipiabackend.support.fixture.AcceptanceMemberFixture.기본_회원_생성_및_로그인;
+import static com.aipiabackend.support.fixture.AcceptanceMemberFixture.회원가입_및_로그인;
+import static com.aipiabackend.support.fixture.AcceptanceOrderFixture.주문_생성;
+import static com.aipiabackend.support.fixture.AcceptanceProductFixture.노트북_생성;
+import static com.aipiabackend.support.fixture.AcceptanceProductFixture.마우스_생성;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.matchesRegex;
@@ -59,7 +59,7 @@ public class OrderAcceptanceTest extends AcceptanceTestBase {
     /**
      * 필수 필드 누락 시 400 Bad Request를 응답하는지 검증
      *
-     * @param 테스트명      테스트 케이스 설명
+     * @param 테스트명        테스트 케이스 설명
      * @param requestBody 누락된 필드가 포함된 요청 본문
      */
     @ParameterizedTest(name = "{0}")
@@ -87,46 +87,46 @@ public class OrderAcceptanceTest extends AcceptanceTestBase {
             Arguments.of(
                 "memberId 누락",
                 """
-                {
-                    "memberId": null,
-                    "orderLines": [
-                        {
-                            "productId": 1,
-                            "productQuantity": 2,
-                            "productPrice": 1500000,
-                            "amount": 3000000
-                        }
-                    ],
-                    "amount": 3000000
-                }
-                """
+                    {
+                        "memberId": null,
+                        "orderLines": [
+                            {
+                                "productId": 1,
+                                "productQuantity": 2,
+                                "productPrice": 1500000,
+                                "amount": 3000000
+                            }
+                        ],
+                        "amount": 3000000
+                    }
+                    """
             ),
             Arguments.of(
                 "orderLines 누락",
                 """
-                {
-                    "memberId": 1,
-                    "orderLines": [],
-                    "amount": 3000000
-                }
-                """
+                    {
+                        "memberId": 1,
+                        "orderLines": [],
+                        "amount": 3000000
+                    }
+                    """
             ),
             Arguments.of(
                 "amount 누락",
                 """
-                {
-                    "memberId": 1,
-                    "orderLines": [
-                        {
-                            "productId": 1,
-                            "productQuantity": 2,
-                            "productPrice": 1500000,
-                            "amount": 3000000
-                        }
-                    ],
-                    "amount": null
-                }
-                """
+                    {
+                        "memberId": 1,
+                        "orderLines": [
+                            {
+                                "productId": 1,
+                                "productQuantity": 2,
+                                "productPrice": 1500000,
+                                "amount": 3000000
+                            }
+                        ],
+                        "amount": null
+                    }
+                    """
             )
         );
     }

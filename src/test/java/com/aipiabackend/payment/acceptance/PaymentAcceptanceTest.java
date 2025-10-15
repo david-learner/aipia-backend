@@ -1,12 +1,11 @@
 package com.aipiabackend.payment.acceptance;
 
-import static com.aipiabackend.support.fixture.OrderFixture.*;
+import static com.aipiabackend.support.fixture.AcceptanceOrderFixture.*;
 import static io.restassured.RestAssured.given;
 
 import com.aipiabackend.payment.controller.dto.PaymentCreateRequest;
 import com.aipiabackend.support.AcceptanceTestBase;
-import com.aipiabackend.support.fixture.MemberFixture;
-import com.aipiabackend.support.fixture.OrderFixture;
+import com.aipiabackend.support.fixture.AcceptanceMemberFixture;
 import com.aipiabackend.support.model.LoginedMember;
 import com.aipiabackend.support.model.OrderAndMember;
 import com.aipiabackend.support.util.FixtureUtil;
@@ -156,7 +155,7 @@ public class PaymentAcceptanceTest extends AcceptanceTestBase {
 
     @Test
     void 존재하지_않는_주문_ID로_결제_시도시_500_Internal_Server_Error_응답한다() {
-        LoginedMember 기본_회원 = MemberFixture.기본_회원_생성_및_로그인();
+        LoginedMember 기본_회원 = AcceptanceMemberFixture.기본_회원_생성_및_로그인();
 
         // 존재하지 않는 주문 ID로 결제 시도
         String payRequestBody = """

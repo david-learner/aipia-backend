@@ -4,7 +4,7 @@ import static io.restassured.RestAssured.given;
 
 import com.aipiabackend.product.controller.dto.ProductCreateRequest;
 import com.aipiabackend.support.AcceptanceTestBase;
-import com.aipiabackend.support.fixture.MemberFixture;
+import com.aipiabackend.support.fixture.AcceptanceMemberFixture;
 import com.aipiabackend.support.model.LoginedAdmin;
 import com.aipiabackend.support.model.LoginedMember;
 import com.aipiabackend.support.util.FixtureUtil;
@@ -21,7 +21,7 @@ public class ProductAcceptanceTest extends AcceptanceTestBase {
 
     @Test
     void 관리자가_유효한_상품_정보로_상품을_생성한다() {
-        LoginedAdmin 기본_관리자 = MemberFixture.기본_관리자_생성_및_로그인(memberRepository, passwordEncoder);
+        LoginedAdmin 기본_관리자 = AcceptanceMemberFixture.기본_관리자_생성_및_로그인(memberRepository, passwordEncoder);
         ProductCreateRequest productCreateRequest = new ProductCreateRequest(
             "맥북 프로",
             2500000L,
@@ -42,7 +42,7 @@ public class ProductAcceptanceTest extends AcceptanceTestBase {
 
     @Test
     void 일반_회원이_상품_생성을_시도하면_403_Forbidden을_응답한다() {
-        LoginedMember 기본_회원 = MemberFixture.기본_회원_생성_및_로그인();
+        LoginedMember 기본_회원 = AcceptanceMemberFixture.기본_회원_생성_및_로그인();
         ProductCreateRequest productCreateRequest = new ProductCreateRequest(
             "맥북 프로",
             2500000L,
@@ -83,7 +83,7 @@ public class ProductAcceptanceTest extends AcceptanceTestBase {
     @ParameterizedTest
     @MethodSource("필수_필드_누락_케이스")
     void 필수_필드_누락_시_400_Bad_Request를_응답한다(String fieldName, String requestBody) {
-        LoginedAdmin 기본_관리자 = MemberFixture.기본_관리자_생성_및_로그인(memberRepository, passwordEncoder);
+        LoginedAdmin 기본_관리자 = AcceptanceMemberFixture.기본_관리자_생성_및_로그인(memberRepository, passwordEncoder);
 
         given()
             .header("Authorization", "Bearer " + 기본_관리자.accessToken())

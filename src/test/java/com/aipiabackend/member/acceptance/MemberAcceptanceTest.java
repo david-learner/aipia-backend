@@ -1,7 +1,7 @@
 package com.aipiabackend.member.acceptance;
 
-import static com.aipiabackend.support.fixture.MemberFixture.회원_가입;
-import static com.aipiabackend.support.fixture.MemberFixture.회원가입_및_로그인;
+import static com.aipiabackend.support.fixture.AcceptanceMemberFixture.회원_가입;
+import static com.aipiabackend.support.fixture.AcceptanceMemberFixture.회원가입_및_로그인;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.matchesRegex;
@@ -9,7 +9,7 @@ import static org.hamcrest.Matchers.matchesRegex;
 import com.aipiabackend.member.model.Member;
 import com.aipiabackend.member.model.MemberGrade;
 import com.aipiabackend.support.AcceptanceTestBase;
-import com.aipiabackend.support.fixture.MemberFixture;
+import com.aipiabackend.support.fixture.AcceptanceMemberFixture;
 import com.aipiabackend.support.model.LoginedAdmin;
 import com.aipiabackend.support.model.LoginedMember;
 import io.restassured.http.ContentType;
@@ -277,7 +277,7 @@ public class MemberAcceptanceTest extends AcceptanceTestBase {
     @Test
     void 관리자는_다른_회원의_정보를_조회할_수_있다() {
         String 기본_회원_Location = 회원_가입("김길동", "gdkim@gmail.com", "gdkimSecret123", "010-1111-2222");
-        LoginedAdmin 관리자 = MemberFixture.기본_관리자_생성_및_로그인(memberRepository, passwordEncoder);
+        LoginedAdmin 관리자 = AcceptanceMemberFixture.기본_관리자_생성_및_로그인(memberRepository, passwordEncoder);
 
         given()
             .header("Authorization", "Bearer " + 관리자.accessToken())
@@ -293,7 +293,7 @@ public class MemberAcceptanceTest extends AcceptanceTestBase {
 
     @Test
     void 회원은_me_엔드포인트로_본인의_정보를_조회할_수_있다() {
-        LoginedMember 기본_회원 = MemberFixture.기본_회원_생성_및_로그인();
+        LoginedMember 기본_회원 = AcceptanceMemberFixture.기본_회원_생성_및_로그인();
 
         given()
             .header("Authorization", "Bearer " + 기본_회원.accessToken())

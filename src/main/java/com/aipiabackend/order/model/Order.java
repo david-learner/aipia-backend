@@ -2,15 +2,19 @@ package com.aipiabackend.order.model;
 
 import static com.aipiabackend.support.model.ErrorCodeMessage.ORDER_CAN_BE_SUCCEEDED_FROM_PENDING;
 
+import com.aipiabackend.member.model.Member;
 import com.aipiabackend.support.model.exception.AipiaDomainException;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
@@ -32,8 +36,9 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "member_id", nullable = false)
-    private Long memberId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -48,8 +53,8 @@ public class Order {
     @Column(name = "ordered_at", nullable = false)
     private LocalDateTime orderedAt;
 
-    public static Order of(Long memberId, List<OrderLine> orderLines, Long amount) {
-        Order order = new Order(null, memberId, OrderStatus.PENDING, new ArrayList<>(), amount, LocalDateTime.now());
+    public static Order of(Member member, List<OrderLine> orderLines, Long amount) {
+        Order order = new Order(null, member, OrderStatus.PENDING, new ArrayList<>(), amount, LocalDateTime.now());
         orderLines.forEach(order::addOrderLine);
         return order;
     }
@@ -72,6 +77,6 @@ public class Order {
     }
 
     public boolean isOrderedBy(Long memberId) {
-        return this.memberId.equals(memberId);
+        return this.member != null && this.member.getId().equals(memberId);
     }
 }
