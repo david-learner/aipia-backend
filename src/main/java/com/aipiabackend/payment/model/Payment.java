@@ -29,6 +29,7 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // 하나의 주문에 대한 결제, 환불을 하나의 그룹으로 묶기 위한 필드
     @Column(name = "group_id")
     private Long groupId;
 
