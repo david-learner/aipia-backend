@@ -2,6 +2,8 @@ package com.aipiabackend.payment.service;
 
 import static com.aipiabackend.support.model.ErrorCodeMessage.PAYMENT_NOT_FOUND;
 
+import com.aipiabackend.order.model.Order;
+import com.aipiabackend.order.service.OrderService;
 import com.aipiabackend.payment.model.Payment;
 import com.aipiabackend.payment.repository.PaymentRepository;
 import com.aipiabackend.support.model.exception.AipiaDomainException;
@@ -18,10 +20,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class PaymentRecordService {
 
     private final PaymentRepository paymentRepository;
+    private final OrderService orderService;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Payment createPayment(Long orderId, Long amount) {
-        Payment payment = Payment.of(orderId, amount);
+        Order order = orderService.findById(orderId);
+        Payment payment = Payment.of(order, amount);
         return paymentRepository.save(payment);
     }
 

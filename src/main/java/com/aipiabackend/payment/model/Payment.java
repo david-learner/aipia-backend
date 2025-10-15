@@ -1,12 +1,16 @@
 package com.aipiabackend.payment.model;
 
+import com.aipiabackend.order.model.Order;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
@@ -28,8 +32,9 @@ public class Payment {
     @Column(name = "group_id")
     private Long groupId;
 
-    @Column(name = "order_id", nullable = false)
-    private Long orderId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id", nullable = false)
+    private Order order;
 
     @Column(name = "transaction_id")
     private String transactionId;
@@ -50,11 +55,11 @@ public class Payment {
     @Column(name = "refunded_at")
     private LocalDateTime refundedAt;
 
-    public static Payment of(Long orderId, Long amount) {
+    public static Payment of(Order order, Long amount) {
         return new Payment(
             null,
             null,
-            orderId,
+            order,
             null,
             amount,
             PaymentStatus.PENDING,
